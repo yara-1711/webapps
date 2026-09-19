@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Manager</title>
+
+    <!-- SQL.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f3f6ff;
+            padding: 30px;
+        }
+
+        .box {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #4056d6;
+        }
+
+        .form {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px #ccc;
+        }
+
+        input, select, button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #4056d6;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #293bb0;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 25px;
+            background: white;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #4056d6;
+            color: white;
+            padding: 12px;
+            cursor: pointer;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .delete {
+            background: #e74c3c;
+        }
+
+        .edit {
+            background: #27ae60;
+        }
+
+        #pages {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>🎓 Student Manager</h1>
+
+    <div class="form">
+
+        <input id="studentName" placeholder="Student Name">
+
+        <input id="studentGrade"
+               type="number"
+               placeholder="Grade">
+
+        <input id="studentDob"
+               type="date">
+
+        <input id="studentAddress"
+               placeholder="Address">
+
+        <button onclick="addStudent()">Add Student</button>
+
+        <br>
+
+        <select id="gradeFilter" onchange="showStudents()">
+            <option value="">All Grades</option>
+        </select>
+
+        <button onclick="exportCSV()">📄 Export CSV</button>
+
+    </div>
+
+
+    <table>
+
+        <thead>
+            <tr>
+                <th onclick="sortStudents('roll_no')">
+                    Roll No. ↕
+                </th>
+
+                <th onclick="sortStudents('name')">
+                    Name ↕
+                </th>
+
+                <th onclick="sortStudents('grade')">
+                    Grade ↕
+                </th>
+
+                <th onclick="sortStudents('dob')">
+                    DOB ↕
+                </th>
+
+                <th onclick="sortStudents('address')">
+                    Address ↕
+                </th>
+
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody id="studentList"></tbody>
+
+    </table>
+
+    <div id="pages"></div>
+
+</div>
+
+
+<script>
+
+let db;
+
+let page = 1;
+
+let sortColumn = "roll_no";
+
+let sortOrder = "ASC";
+
+
+// Start SQL.js
+initSqlJs({
+
+    locateFile: function(file) {
+
+        return "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/" + file;
+
+    }
+
+}).then(function(SQL) {
+
+    // Create database
+    db = new SQL.Database();
+
+    // Create table
+    db.run(`
+        CREATE TABLE students (
+
+            roll_no INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            name TEXT,
+
+            grade INTEGER,
+
+            dob TEXT,
+
+            address TEXT
+
+        )
+    `);
+
+    showStudents();
+
+});
+
+
+// ADD STUDENT
+function addStudent() {
+
+    let name =
+        document.getElementById("studentName").value;
+
+    let grade =
+        document.getElementById("studentGrade").value;
+
+    let dob =
+        document.getElementById("studentDob").value;
+
+    let address =
+        document.getElementById("studentAddress").value;
+
+
+    // Check if name and grade are filled
+    if (name == "" || grade == "") {
+
+        alert("Please enter the name and grade.");
+
+        return;
+    }
+
+
+    // Add to SQL database
+    db.run(
+        `INSERT INTO students
+        (name, grade, dob, address)
+        VALUES (?, ?, ?, ?)`,
+        
+        [name, grade, dob, address]
+    );
+
+
+    // Clear boxes
+    document.getElementById("studentName").value = "";
+
+    document.getElementById("studentGrade").value = "";
+
+    document.getElementById("studentDob").value = "";
+
+    document.getElementById("studentAddress").value = "";
+
+
+    showStudents();
+}
+
+
+// SHOW STUDENTS
+function showStudents() {
+
+    let filter =
+        document.getElementById("gradeFilter").value;
+
+
+    let sql = "SELECT * FROM students";
+
+
+    // Filter by grade
+    if (filter != "") {
+
+        sql += " WHERE grade = " + filter;
+
+    }
+
+
+    // Sort
+    sql +=
+        " ORDER BY " +
+        sortColumn +
+        " " +
+        sortOrder;
+
+
+    let result = db.exec(sql);
+
+
+    let students = [];
+
+
+    if (result.length > 0) {
+
+        students = result[0].values;
+
+    }
+
+
+    // Show 20 students
+    let start = (page - 1) * 20;
+
+    let currentStudents =
+        students.slice(start, start + 20);
+
+
+    document.getElementById("studentList").innerHTML = "";
+
+
+    currentStudents.forEach(function(student) {
+
+        document.getElementById("studentList").innerHTML += `
+
+            <tr>
+
+                <td>${student[0]}</td>
+
+                <td>${student[1]}</td>
+
+                <td>${student[2]}</td>
+
+                <td>${student[3]}</td>
+
+                <td>${student[4]}</td>
+
+                <td>
+
+                    <button
+                        class="edit"
+                        onclick="editStudent(${student[0]})">
+                        Edit
+                    </button>
+
+                    <button
+                        class="delete"
+                        onclick="deleteStudent(${student[0]})">
+                        Delete
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+
+    makePages(students.length);
+
+    makeGradeFilter(students);
+}
+
+
+// EDIT STUDENT
+function editStudent(id) {
+
+    let name =
+        prompt("Enter name:");
+
+    if (name == null) return;
+
+
+    let grade =
+        prompt("Enter grade:");
+
+    let dob =
+        prompt("Enter DOB:");
+
+    let address =
+        prompt("Enter address:");
+
+
+    db.run(
+        `UPDATE students
+
+         SET name = ?,
+             grade = ?,
+             dob = ?,
+             address = ?
+
+         WHERE roll_no = ?`,
+
+        [name, grade, dob, address, id]
+    );
+
+
+    showStudents();
+}
+
+
+// DELETE STUDENT
+function deleteStudent(id) {
+
+    if (confirm("Delete this student?")) {
+
+        db.run(
+            "DELETE FROM students WHERE roll_no = ?",
+            [id]
+        );
+
+        showStudents();
+    }
+}
+
+
+// SORT
+function sortStudents(column) {
+
+    if (sortColumn == column) {
+
+        if (sortOrder == "ASC") {
+
+            sortOrder = "DESC";
+
+        } else {
+
+            sortOrder = "ASC";
+
+        }
+
+    } else {
+
+        sortColumn = column;
+
+        sortOrder = "ASC";
+
+    }
+
+
+    showStudents();
+}
+
+
+// GRADE FILTER
+function makeGradeFilter(students) {
+
+    let filter =
+        document.getElementById("gradeFilter");
+
+
+    let oldValue = filter.value;
+
+
+    filter.innerHTML =
+        `<option value="">All Grades</option>`;
+
+
+    let grades = [];
+
+
+    students.forEach(function(student) {
+
+        let grade = student[2];
+
+
+        if (!grades.includes(grade)) {
+
+            grades.push(grade);
+
+        }
+
+    });
+
+
+    grades.sort();
+
+
+    grades.forEach(function(grade) {
+
+        filter.innerHTML +=
+            `<option value="${grade}">
+                Grade ${grade}
+            </option>`;
+
+    });
+
+
+    filter.value = oldValue;
+}
+
+
+// PAGES
+function makePages(total) {
+
+    let pages =
+        document.getElementById("pages");
+
+
+    pages.innerHTML = "";
+
+
+    let totalPages =
+        Math.ceil(total / 20);
+
+
+    for (let i = 1; i <= totalPages; i++) {
+
+        pages.innerHTML += `
+
+            <button onclick="page = ${i}; showStudents()">
+
+                ${i}
+
+            </button>
+
+        `;
+
+    }
+
+}
+
+
+// EXPORT CSV
+function exportCSV() {
+
+    let result =
+        db.exec("SELECT * FROM students");
+
+
+    if (result.length == 0) {
+
+        alert("No students to export!");
+
+        return;
+    }
+
+
+    let csv =
+        "Roll No,Name,Grade,DOB,Address\n";
+
+
+    result[0].values.forEach(function(student) {
+
+        csv +=
+            student.join(",") + "\n";
+
+    });
+
+
+    let file =
+        new Blob([csv], { type: "text/csv" });
+
+
+    let link =
+        document.createElement("a");
+
+
+    link.href =
+        URL.createObjectURL(file);
+
+
+    link.download =
+        "students.csv";
+
+
+    link.click();
+
+}
+
+</script>
+
+</body>
+</html>

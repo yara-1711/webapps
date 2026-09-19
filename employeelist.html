@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Employee List</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/daisyui@5"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="p-5 bg-base-200">
+
+<h1 class="text-2xl font-bold">Employee List</h1>
+
+<br>
+
+<!-- FORM -->
+
+<input id="name" placeholder="Name" class="input input-bordered">
+<input id="dob" type="date" class="input input-bordered">
+
+<select id="gender" class="select select-bordered">
+    <option>Gender</option>
+    <option>Male</option>
+    <option>Female</option>
+</select>
+
+<input id="joining" type="date" class="input input-bordered">
+<input id="position" placeholder="Position" class="input input-bordered">
+<input id="department" placeholder="Department" class="input input-bordered">
+<input id="experience" placeholder="Experience" class="input input-bordered">
+<input id="salary" placeholder="Salary" class="input input-bordered">
+<input id="blood" placeholder="Blood Group" class="input input-bordered">
+<input id="email" placeholder="Email" class="input input-bordered">
+<input id="address" placeholder="Address" class="input input-bordered">
+
+<br><br>
+
+<button onclick="addEmployee()" class="btn btn-primary">
+    Add Employee
+</button>
+
+<hr class="my-5">
+
+
+<!-- LIST -->
+
+<ul id="employeeList"></ul>
+
+
+<script>
+
+let employees = [];
+
+
+// Add employee
+
+function addEmployee() {
+
+    let employee = {
+
+        name: document.getElementById("name").value,
+        dob: document.getElementById("dob").value,
+        gender: document.getElementById("gender").value,
+        joining: document.getElementById("joining").value,
+        position: document.getElementById("position").value,
+        department: document.getElementById("department").value,
+        experience: document.getElementById("experience").value,
+        salary: document.getElementById("salary").value,
+        blood: document.getElementById("blood").value,
+        email: document.getElementById("email").value,
+        address: document.getElementById("address").value
+
+    };
+
+    employees.push(employee);
+
+    localStorage.setItem(
+        "employees",
+        JSON.stringify(employees)
+    );
+
+    showEmployees();
+}
+
+
+// Show employees
+
+function showEmployees() {
+
+    let list =
+        document.getElementById("employeeList");
+
+    list.innerHTML = "";
+
+    employees.forEach(function(employee, index) {
+
+        list.innerHTML += `
+
+            <li class="bg-base-100 p-4 mb-2 rounded">
+
+                ${index + 1}. <b>${employee.name}</b>
+
+                <br>
+                ${employee.position} -
+                ${employee.department}
+
+                <br>
+                Joined: ${employee.joining}
+
+                <br>
+                Salary: ₹${employee.salary}
+
+                <br><br>
+
+                <button
+                    class="btn btn-error btn-sm"
+                    onclick="deleteEmployee(${index})">
+
+                    Delete
+
+                </button>
+
+            </li>
+        `;
+    });
+}
+
+
+// Delete employee
+
+function deleteEmployee(index) {
+
+    employees.splice(index, 1);
+
+    localStorage.setItem(
+        "employees",
+        JSON.stringify(employees)
+    );
+
+    showEmployees();
+}
+
+
+// Load saved employees
+
+let saved =
+    localStorage.getItem("employees");
+
+if (saved != null) {
+
+    employees = JSON.parse(saved);
+
+    showEmployees();
+}
+
+</script>
+
+</body>
+</html>
+```
