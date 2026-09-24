@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link
+    href="https://cdn.jsdelivr.net/npm/daisyui@5"
+    rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
+<script>
+    async function initSqlJS() {
+        const SQL = await initSqlJs({
+            locateFile: file =>
+                `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/${file}`
+        });
+
+        const db = new SQL.Database();
+
+        db.run(`
+        CREATE TABLE students (
+            id INTEGER,
+            name TEXT,
+            age INTEGER
+        );
+    `);
+
+        db.run(`
+        INSERT INTO students VALUES
+        (1, 'Rhea', 14),
+        (2, 'Aarav', 15);
+    `);
+
+        const result = db.exec("SELECT * FROM students");
+
+        console.log(result);
+    }
+
+    initSqlJS();
+</script>
+
+<body>
+    <body>
+
+ <button
+    onclick="window.location.href='index.html'"
+    class="btn btn-soft btn-secondary
+           rounded-full
+           px-6
+           shadow-md
+           hover:shadow-lg
+           hover:-translate-y-1
+           transition-all duration-300">
+
+    ← Back to My Projects 💗
+
+</button>
+
+</body>
+
+</body>
+
+</html>

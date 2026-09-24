@@ -1,45 +1,209 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+
+    <title>My Projects</title>
+
+    <!-- DaisyUI -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/daisyui@5"
+        rel="stylesheet">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
 </head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
-<script>
-    async function initSqlJS() {
-        const SQL = await initSqlJs({
-            locateFile: file =>
-                `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/${file}`
-        });
 
-        const db = new SQL.Database();
 
-        db.run(`
-        CREATE TABLE students (
-            id INTEGER,
-            name TEXT,
-            age INTEGER
-        );
-    `);
+<body class="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100">
 
-        db.run(`
-        INSERT INTO students VALUES
-        (1, 'Rhea', 14),
-        (2, 'Aarav', 15);
-    `);
 
-        const result = db.exec("SELECT * FROM students");
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-6xl mx-auto px-6 py-16">
 
-        console.log(result);
-    }
 
-    initSqlJS();
-</script>
+        <!-- TITLE -->
+        <div class="text-center mb-12">
 
-<body>
+            <h1 class="text-5xl font-bold text-primary">
+                💗 My Projects
+            </h1>
 
-</body>
+            <p class="mt-3 text-lg text-gray-600">
+                Click on a project to open it ✨
+            </p>
 
-</html>
+        </div>
+
+
+
+        <!-- PROJECT CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+
+
+            <!-- BOOK TRACKER -->
+            <a href="booktracker.html"
+                class="card bg-pink-50 shadow-xl 
+                       border-2 border-pink-200 
+                       hover:shadow-2xl 
+                       hover:-translate-y-2 
+                       transition-all duration-300">
+
+                <div class="card-body">
+
+                    <div class="flex items-center gap-5">
+
+                        <div class="text-6xl">
+                            📚
+                        </div>
+
+                        <div>
+
+                            <h2 class="card-title text-2xl text-pink-600">
+                                Book Tracker
+                            </h2>
+
+                            <p class="text-gray-600">
+                                Track and organize your books.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mt-5 text-right text-pink-600 font-semibold">
+                        Open →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+
+            <!-- EMPLOYEE LIST -->
+            <a href="employeelist.html"
+                class="card bg-purple-50 shadow-xl 
+                       border-2 border-purple-200 
+                       hover:shadow-2xl 
+                       hover:-translate-y-2 
+                       transition-all duration-300">
+
+                <div class="card-body">
+
+                    <div class="flex items-center gap-5">
+
+                        <div class="text-6xl">
+                            👩‍💼
+                        </div>
+
+                        <div>
+
+                            <h2 class="card-title text-2xl text-purple-600">
+                                Employee List
+                            </h2>
+
+                            <p class="text-gray-600">
+                                Manage employee information.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mt-5 text-right text-purple-600 font-semibold">
+                        Open →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+
+            <!-- DATABASE -->
+            <a href="rdb.html"
+                class="card bg-blue-50 shadow-xl 
+                       border-2 border-blue-200 
+                       hover:shadow-2xl 
+                       hover:-translate-y-2 
+                       transition-all duration-300">
+
+                <div class="card-body">
+
+                    <div class="flex items-center gap-5">
+
+                        <div class="text-6xl">
+                            🗄️
+                        </div>
+
+                        <div>
+
+                            <h2 class="card-title text-2xl text-blue-600">
+                                Database
+                            </h2>
+
+                            <p class="text-gray-600">
+                                Work with SQL and databases.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mt-5 text-right text-blue-600 font-semibold">
+                        Open →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+
+            <!-- STUDENTS -->
+            <a href="students.html"
+                class="card bg-emerald-50 shadow-xl 
+                       border-2 border-emerald-200 
+                       hover:shadow-2xl 
+                       hover:-translate-y-2 
+                       transition-all duration-300">
+
+                <div class="card-body">
+
+                    <div class="flex items-center gap-5">
+
+                        <div class="text-6xl">
+                            🎓
+                        </div>
+
+                        <div>
+
+                            <h2 class="card-title text-2xl text-emerald-600">
+                                Students
+                            </h2>
+
+                            <p class="text-gray-600">
+                                Manage student records.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mt-5 text-right text-emerald-600 font-semibold">
+                        Open →
+                    </div>
+
+                </div>
+
+            </a>
+
+
+        </d
+```

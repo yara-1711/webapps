@@ -3,53 +3,338 @@
 <html>
 
 <head>
-    <title>Employee List</title>
+    <title>Employee Manager</title>
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/daisyui@5"
-        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5"
+          rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
-<body class="p-5 bg-base-200">
 
-<h1 class="text-2xl font-bold">Employee List</h1>
+<body class="bg-base-200 min-h-screen">
 
-<br>
+    <div class="p-6">
+
+        <a href="index.html"
+           class="btn btn-soft btn-secondary rounded-full
+                  shadow-md hover:shadow-xl
+                  hover:-translate-y-1
+                  transition-all duration-300
+                  px-6">
+
+            <span class="text-lg">←</span>
+            Back to My Projects
+            <span>💗</span>
+
+        </a>
+
+        <!-- Your project starts here -->
+
+    </div>
+
+
+<!-- NAVBAR -->
+
+<div class="navbar bg-primary text-primary-content shadow-lg">
+
+    <div class="flex-1">
+
+        <h1 class="text-2xl font-bold px-4">
+            👥 Employee Manager
+        </h1>
+
+    </div>
+
+</div>
+
+
+<div class="max-w-6xl mx-auto p-5">
+
+
+<!-- HEADER -->
+
+<div class="text-center py-8">
+
+    <h1 class="text-4xl font-bold">
+        Employee Dashboard
+    </h1>
+
+    <p class="text-base-content/60 mt-2">
+        Add and manage your employees
+    </p>
+
+</div>
+
+
+<!-- EMPLOYEE COUNT -->
+
+<div class="stats shadow w-full mb-6">
+
+    <div class="stat">
+
+        <div class="stat-figure text-primary text-3xl">
+            👥
+        </div>
+
+        <div class="stat-title">
+            Total Employees
+        </div>
+
+        <div id="employeeCount"
+             class="stat-value text-primary">
+            0
+        </div>
+
+    </div>
+
+</div>
+
 
 <!-- FORM -->
 
-<input id="name" placeholder="Name" class="input input-bordered">
-<input id="dob" type="date" class="input input-bordered">
+<div class="card bg-base-100 shadow-xl mb-8">
 
-<select id="gender" class="select select-bordered">
-    <option>Gender</option>
-    <option>Male</option>
-    <option>Female</option>
-</select>
+    <div class="card-body">
 
-<input id="joining" type="date" class="input input-bordered">
-<input id="position" placeholder="Position" class="input input-bordered">
-<input id="department" placeholder="Department" class="input input-bordered">
-<input id="experience" placeholder="Experience" class="input input-bordered">
-<input id="salary" placeholder="Salary" class="input input-bordered">
-<input id="blood" placeholder="Blood Group" class="input input-bordered">
-<input id="email" placeholder="Email" class="input input-bordered">
-<input id="address" placeholder="Address" class="input input-bordered">
+        <h2 class="card-title text-2xl">
+            ➕ Add Employee
+        </h2>
 
-<br><br>
-
-<button onclick="addEmployee()" class="btn btn-primary">
-    Add Employee
-</button>
-
-<hr class="my-5">
+        <div class="divider"></div>
 
 
-<!-- LIST -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-<ul id="employeeList"></ul>
+
+            <!-- NAME -->
+
+            <div>
+                <label class="label">
+                    <span class="label-text font-semibold">
+                        Full Name
+                    </span>
+                </label>
+
+                <input id="name"
+                       placeholder="Enter full name"
+                       class="input input-bordered w-full">
+            </div>
+
+
+            <!-- DATE OF BIRTH -->
+
+            <div>
+                <label class="label">
+                    <span class="label-text font-semibold">
+                        🎂 Date of Birth
+                    </span>
+                </label>
+
+                <input id="dob"
+                       type="date"
+                       class="input input-bordered w-full">
+            </div>
+
+
+            <!-- GENDER -->
+
+            <div>
+                <label class="label">
+                    <span class="label-text font-semibold">
+                        Gender
+                    </span>
+                </label>
+
+                <select id="gender"
+                        class="select select-bordered w-full">
+
+                    <option value="">
+                        Select Gender
+                    </option>
+
+                    <option>Male</option>
+                    <option>Female</option>
+
+                </select>
+            </div>
+
+
+            <!-- DATE OF JOINING -->
+
+            <div>
+                <label class="label">
+                    <span class="label-text font-semibold">
+                        📅 Date of Joining
+                    </span>
+                </label>
+
+                <input id="joining"
+                       type="date"
+                       class="input input-bordered w-full">
+            </div>
+
+
+            <!-- POSITION -->
+
+            <div>
+                <label class="label">
+                    <span class="label-text font-semibold">
+                        💼 Position
+                    </span>
+                </label>
+
+                <input id="position"
+                       placeholder="e.g. Manager"
+                       class="input input-bordered w-full">
+            </div>
+
+
+            <!-- DEPARTMENT -->
+
+            <div>
+                <label class="label">
+                    <span class="label-text font-semibold">
+                        🏢 Department
+                    </span>
+                </label>
+
+                <input id="department"
+                       placeholder="e.g. Finance"
+                       class="input input-bordered w-full">
+            </div>
+
+
+            <!-- EXPERIENCE -->
+
+            <div>
+                <label class="label">
+                    <span class="label-text font-semibold">
+                        ⭐ Experience
+                    </span>
+                </label>
+
+                <input id="experience"
+                       type="number"
+                       placeholder="Years"
+                       class="input input-bordered w-full">
+            </div>
+
+
+            <!-- SALARY -->
+
+            <div>
+                <label class="label">
+                    <span class="label-text font-semibold">
+                        💰 Salary
+                    </span>
+                </label>
+
+                <input id="salary"
+                       type="number"
+                       step="5000"
+                       min="0"
+                       placeholder="Salary"
+                       class="input input-bordered w-full">
+            </div>
+
+
+            <!-- BLOOD GROUP -->
+
+            <div>
+                <label class="label">
+                    <span class="label-text font-semibold">
+                        🩸 Blood Group
+                    </span>
+                </label>
+
+                <input id="blood"
+                       placeholder="e.g. O+"
+                       class="input input-bordered w-full">
+            </div>
+
+
+            <!-- EMAIL -->
+
+            <div>
+                <label class="label">
+                    <span class="label-text font-semibold">
+                        📧 Email
+                    </span>
+                </label>
+
+                <input id="email"
+                       type="email"
+                       placeholder="example@email.com"
+                       class="input input-bordered w-full">
+            </div>
+
+
+            <!-- ADDRESS -->
+
+            <div class="md:col-span-2">
+
+                <label class="label">
+                    <span class="label-text font-semibold">
+                        🏠 Address
+                    </span>
+                </label>
+
+                <input id="address"
+                       placeholder="Enter address"
+                       class="input input-bordered w-full">
+
+            </div>
+
+
+        </div>
+
+
+        <button onclick="addEmployee()"
+                class="btn btn-primary btn-lg mt-5 w-full">
+
+            ➕ Add Employee
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- SEARCH -->
+
+<div class="card bg-base-100 shadow mb-6">
+
+    <div class="card-body">
+
+        <h2 class="card-title">
+            🔎 Search Employees
+        </h2>
+
+        <input id="search"
+               onkeyup="searchEmployees()"
+               placeholder="Search by name..."
+               class="input input-bordered w-full">
+
+    </div>
+
+</div>
+
+
+<!-- EMPLOYEE LIST -->
+
+<h2 class="text-2xl font-bold mb-4">
+    👤 Employees
+</h2>
+
+
+<div id="employeeList"
+     class="grid grid-cols-1 md:grid-cols-2 gap-5">
+</div>
+
+
+</div>
 
 
 <script>
@@ -57,38 +342,77 @@
 let employees = [];
 
 
-// Add employee
+// ADD EMPLOYEE
 
 function addEmployee() {
 
+    let name =
+        document.getElementById("name").value;
+
+
+    if (name == "") {
+
+        alert("Please enter the employee name!");
+
+        return;
+
+    }
+
+
     let employee = {
 
-        name: document.getElementById("name").value,
-        dob: document.getElementById("dob").value,
-        gender: document.getElementById("gender").value,
-        joining: document.getElementById("joining").value,
-        position: document.getElementById("position").value,
-        department: document.getElementById("department").value,
-        experience: document.getElementById("experience").value,
-        salary: document.getElementById("salary").value,
-        blood: document.getElementById("blood").value,
-        email: document.getElementById("email").value,
-        address: document.getElementById("address").value
+        name: name,
+
+        dob:
+        document.getElementById("dob").value,
+
+        gender:
+        document.getElementById("gender").value,
+
+        joining:
+        document.getElementById("joining").value,
+
+        position:
+        document.getElementById("position").value,
+
+        department:
+        document.getElementById("department").value,
+
+        experience:
+        document.getElementById("experience").value,
+
+        salary:
+        document.getElementById("salary").value,
+
+        blood:
+        document.getElementById("blood").value,
+
+        email:
+        document.getElementById("email").value,
+
+        address:
+        document.getElementById("address").value
 
     };
 
+
     employees.push(employee);
+
 
     localStorage.setItem(
         "employees",
         JSON.stringify(employees)
     );
 
+
     showEmployees();
+
+    clearForm();
+
 }
 
 
-// Show employees
+// SHOW EMPLOYEES
 
 function showEmployees() {
 
@@ -97,41 +421,132 @@ function showEmployees() {
 
     list.innerHTML = "";
 
+
     employees.forEach(function(employee, index) {
 
         list.innerHTML += `
 
-            <li class="bg-base-100 p-4 mb-2 rounded">
+        <div class="card bg-base-100 shadow-xl">
 
-                ${index + 1}. <b>${employee.name}</b>
+            <div class="card-body">
 
-                <br>
-                ${employee.position} -
-                ${employee.department}
+                <div class="flex justify-between">
 
-                <br>
-                Joined: ${employee.joining}
+                    <div>
 
-                <br>
-                Salary: ₹${employee.salary}
+                        <h2 class="card-title text-2xl">
+                            ${employee.name}
+                        </h2>
 
-                <br><br>
+                        <p class="text-primary">
+                            ${employee.position}
+                        </p>
+
+                    </div>
+
+                    <div class="badge badge-secondary">
+                        ${employee.department}
+                    </div>
+
+                </div>
+
+
+                <div class="divider"></div>
+
+
+                <div class="grid grid-cols-2 gap-3">
+
+                    <div class="bg-base-200 p-3 rounded-box">
+
+                        <small>Date of Birth</small>
+
+                        <p>🎂 ${employee.dob}</p>
+
+                    </div>
+
+
+                    <div class="bg-base-200 p-3 rounded-box">
+
+                        <small>Date of Joining</small>
+
+                        <p>📅 ${employee.joining}</p>
+
+                    </div>
+
+
+                    <div class="bg-base-200 p-3 rounded-box">
+
+                        <small>Salary</small>
+
+                        <p>💰 ₹${employee.salary}</p>
+
+                    </div>
+
+
+                    <div class="bg-base-200 p-3 rounded-box">
+
+                        <small>Experience</small>
+
+                        <p>⭐ ${employee.experience} years</p>
+
+                    </div>
+
+
+                    <div class="bg-base-200 p-3 rounded-box">
+
+                        <small>Gender</small>
+
+                        <p>👤 ${employee.gender}</p>
+
+                    </div>
+
+
+                    <div class="bg-base-200 p-3 rounded-box">
+
+                        <small>Blood Group</small>
+
+                        <p>🩸 ${employee.blood}</p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="mt-4 text-sm">
+
+                    📧 ${employee.email}
+
+                    <br><br>
+
+                    🏠 ${employee.address}
+
+                </div>
+
 
                 <button
-                    class="btn btn-error btn-sm"
-                    onclick="deleteEmployee(${index})">
+                    onclick="deleteEmployee(${index})"
+                    class="btn btn-error btn-sm mt-4">
 
-                    Delete
+                    🗑️ Delete
 
                 </button>
 
-            </li>
+            </div>
+
+        </div>
+
         `;
+
     });
+
+
+    document.getElementById("employeeCount").innerText =
+        employees.length;
+
 }
 
 
-// Delete employee
+// DELETE
 
 function deleteEmployee(index) {
 
@@ -143,19 +558,83 @@ function deleteEmployee(index) {
     );
 
     showEmployees();
+
 }
 
 
-// Load saved employees
+// SEARCH
+
+function searchEmployees() {
+
+    let search =
+        document.getElementById("search").value.toLowerCase();
+
+    let cards =
+        document.getElementById("employeeList").children;
+
+
+    for (let i = 0; i < cards.length; i++) {
+
+        let name =
+            employees[i].name.toLowerCase();
+
+
+        if (name.includes(search)) {
+
+            cards[i].style.display = "";
+
+        } else {
+
+            cards[i].style.display = "none";
+
+        }
+
+    }
+
+}
+
+
+// CLEAR FORM
+
+function clearForm() {
+
+    document.getElementById("name").value = "";
+
+    document.getElementById("dob").value = "";
+
+    document.getElementById("gender").value = "";
+
+    document.getElementById("joining").value = "";
+
+    document.getElementById("position").value = "";
+
+    document.getElementById("department").value = "";
+
+    document.getElementById("experience").value = "";
+
+    document.getElementById("salary").value = "";
+
+    document.getElementById("blood").value = "";
+
+    document.getElementById("email").value = "";
+
+    document.getElementById("address").value = "";
+
+}
+
+
+// LOAD SAVED EMPLOYEES
 
 let saved =
     localStorage.getItem("employees");
+
 
 if (saved != null) {
 
     employees = JSON.parse(saved);
 
     showEmployees();
+
 }
 
 </script>
