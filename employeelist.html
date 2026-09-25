@@ -52,7 +52,13 @@
                 firebase.auth.GoogleAuthProvider.PROVIDER_ID
             ],
 
-            signInSuccessUrl: "home.html"
+            signInSuccessUrl: "home.html",
+
+            signInSuccessWithAuthResult: function(authResult) {
+                console.log("User signed in:", authResult.user);
+
+                    return false;
+                }
         };
 
         // Show FirebaseUI
