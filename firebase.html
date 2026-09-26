@@ -1,33 +1,44 @@
 <!doctype html>
-<html lang="en">
+<html>
+  <head>
+    <title>Firebase Google Login</title>
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css"
+    />
+  </head>
 
-    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
+  <body>
+    <h1>Firebase Google Login</h1>
 
-    <script>
-        function onClickOfAButton() {
-            document.getElementById("hideMe").hidden = true;
-            document.getElementById("showMe").hidden = false;
-        }
-    </script>
-</head>
-
-<body>
+    <!-- FirebaseUI puts the Google login UI here -->
     <div id="firebaseui-auth-container"></div>
+
+    <!-- User information -->
     <div id="userSection" style="display: none">
-        <h2>Welcome!</h2>
-        <p>Name: <span id="userName"></span></p>
-        <p>Email: <span id="userEmail"></span></p>
-        <p>User ID: <span id="userId"></span></p>
-        <p>Photo URL: <span id="userPhoto"></span></p>
-        <button id="logoutButton">Logout</button>
+      <h2>User Information</h2>
+
+      <p>
+        Name:
+        <span id="userName"></span>
+      </p>
+
+      <p>
+        Email:
+        <span id="userEmail"></span>
+      </p>
+
+      <p>
+        User ID:
+        <span id="userId"></span>
+      </p>
+
+      <button id="logoutButton">Logout</button>
     </div>
 
-    <!-- Firebase -->
+    <!-- Firebase App -->
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
 
     <!-- Firebase Authentication -->
@@ -36,98 +47,96 @@
     <!-- FirebaseUI -->
     <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-        import {
-            getAuth,
-            onAuthStateChanged,
-            signOut,
-        } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-        const firebaseConfig = {
-            apiKey: "AIzaSyCectC2gNXIYpL8Rt4QeOsQuW5oEF2Tf4k",
-            authDomain: "techcoderlabz-project.firebaseapp.com",
-            projectId: "techcoderlabz-project",
-            storageBucket: "techcoderlabz-project.firebasestorage.app",
-            messagingSenderId: "750937809509",
-            appId: "1:750937809509:web:b3561297b5d8ea282b5c8c",
-            measurementId: "G-J13K9JQ058",
-        };
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        // FirebaseUI
-        const ui = new firebaseui.auth.AuthUI(auth);
-        // FirebaseUI configuration
-        const uiConfig = {
-            signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
-            signInFlow: "popup",
-            callbacks: {
-                signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-                    // User successfully signed in.
-                    // Return false to avoid redirect.
-                    return false;
-                },
-            },
-        };
-        // Start FirebaseUI 
-        ui.start("#firebaseui-auth-container", uiConfig);
+    <script>
+      // --------------------------------------------------
+      // Firebase configuration
+      // --------------------------------------------------
 
-        // Authentication state
+      const firebaseConfig = {
+        apiKey: "AIzaSyCectC2gNXIYpL8Rt4QeOsQuW5oEF2Tf4k",
+        authDomain: "techcoderlabz-project.firebaseapp.com",
+        projectId: "techcoderlabz-project",
+        storageBucket: "techcoderlabz-project.firebasestorage.app",
+        messagingSenderId: "750937809509",
+        appId: "1:750937809509:web:b3561297b5d8ea282b5c8c",
+        measurementId: "G-J13K9JQ058",
+      };
 
-        firebase.auth().onAuthStateChanged(function (user) {
+      // --------------------------------------------------
+      // Initialize Firebase
+      // --------------------------------------------------
 
-            if (user) {
+      firebase.initializeApp(firebaseConfig);
 
-                // Logged in
+      // --------------------------------------------------
+      // FirebaseUI
+      // --------------------------------------------------
 
-                document
-                    .getElementById("firebaseui-auth-container")
-                    .style.display = "none";
+      const ui = new firebaseui.auth.AuthUI(firebase.auth());
 
-                document
-                    .getElementById("userSection")
-                    .style.display = "block";
+      const uiConfig = {
+        signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
 
+        signInFlow: "popup",
 
-                // Show user information
+        callbacks: {
+          signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+            console.log("Login successful:", authResult.user);
 
-                document.getElementById("userName").innerText =
-                    user.displayName || "";
+            // Stay on this page.
+            return false;
+          },
+        },
+      };
 
-                document.getElementById("userEmail").innerText =
-                    user.email || "";
+      // Start FirebaseUI
 
-                document.getElementById("userId").innerText =
-                    user.uid;
+      ui.start("#firebaseui-auth-container", uiConfig);
 
-            }
+      // --------------------------------------------------
+      // Authentication state
+      // --------------------------------------------------
 
-            else {
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+          console.log("User:", user);
 
-                // Not logged in
+          // Hide FirebaseUI
 
-                document
-                    .getElementById("firebaseui-auth-container")
-                    .style.display = "block";
+          document.getElementById("firebaseui-auth-container").style.display =
+            "none";
 
-                document
-                    .getElementById("userSection").style.display = "none";
+          // Show user section
 
-            }
+          document.getElementById("userSection").style.display = "block";
 
+          // Display user information
+
+          document.getElementById("userName").innerText =
+            user.displayName || "";
+
+          document.getElementById("userEmail").innerText = user.email || "";
+
+          document.getElementById("userId").innerText = user.uid;
+        } else {
+          // User is not logged in
+
+          document.getElementById("firebaseui-auth-container").style.display =
+            "block";
+
+          document.getElementById("userSection").style.display = "none";
+        }
+      });
+
+      // --------------------------------------------------
+      // Logout
+      // --------------------------------------------------
+
+      document
+        .getElementById("logoutButton")
+        .addEventListener("click", function () {
+          firebase.auth().signOut();
         });
-
-
-        // Logout
-
-        document
-            .getElementById("logoutButton")
-            .addEventListener("click", function () {
-
-                firebase.auth().signOut();
-
-            });
     </script>
-</body>
-
+  </body>
 </html>
