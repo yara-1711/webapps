@@ -61,7 +61,13 @@
         const uiConfig = {
             signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
             signInFlow: "popup",
-            signInSuccessWithAuthResult: function (authResult, redirectUrl) { console.log("Logged in:", authResult.user); return false; }
+            callbacks: {
+                signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+                    // User successfully signed in.
+                    // Return false to avoid redirect.
+                    return false;
+                },
+            },
         };
         // Start FirebaseUI 
         ui.start("#firebaseui-auth-container", uiConfig);
