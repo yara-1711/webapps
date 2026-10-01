@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>My Screen Time Tracker</title>
+
+
+    <!-- SQL.js -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            font-family: Arial, sans-serif;
+
+            background: linear-gradient(
+                135deg,
+                #fff4e5,
+                #fdf8ef
+            );
+
+            min-height: 100vh;
+
+            margin: 0;
+
+            padding: 40px 20px;
+
+            color: #4d433b;
+        }
+
+
+        .box {
+
+            max-width: 1100px;
+
+            margin: auto;
+        }
+
+
+        h1 {
+
+            text-align: center;
+
+            color: #c2781a;
+
+            font-size: 38px;
+
+            font-weight: bold;
+
+            margin-bottom: 8px;
+        }
+
+
+        .subtitle {
+
+            text-align: center;
+
+            color: #91827b;
+
+            margin-bottom: 30px;
+        }
+
+
+        .form {
+
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 8px 25px
+                rgba(194, 120, 26, 0.12);
+
+            margin-bottom: 25px;
+        }
+
+
+        .form h2 {
+
+            margin-top: 0;
+
+            color: #c2781a;
+        }
+
+
+        input,
+        select {
+
+            padding: 12px;
+
+            margin: 5px;
+
+            border: 1px solid #ede0d6;
+
+            border-radius: 10px;
+
+            background: #fffdf9;
+
+            color: #524840;
+
+            outline: none;
+        }
+
+
+        input:focus,
+        select:focus {
+
+            border-color: #e09a3e;
+        }
+
+
+        input {
+
+            width: 220px;
+        }
+
+
+        select {
+
+            cursor: pointer;
+        }
+
+
+        button {
+
+            padding: 11px 17px;
+
+            margin: 5px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            color: white;
+
+            background: #e09a3e;
+
+            font-weight: bold;
+
+            transition: 0.2s;
+        }
+
+
+        button:hover {
+
+            transform: translateY(-2px);
+
+            opacity: 0.9;
+        }
+
+
+        .add-button {
+
+            background: #e09a3e;
+
+            padding: 12px 22px;
+        }
+
+
+        .edit {
+
+            background: #70a887;
+        }
+
+
+        .delete {
+
+            background: #d96b6b;
+        }
+
+
+        .filter-box {
+
+            margin-top: 20px;
+
+            padding-top: 15px;
+
+            border-top: 1px solid #f5eee9;
+        }
+
+
+        .filter-box label {
+
+            font-weight: bold;
+
+            color: #c2781a;
+        }
+
+
+        .export-button {
+
+            background: #d4892f;
+        }
+
+
+        .export-button:hover {
+
+            background: #c2781a;
+        }
+
+
+        .table-box {
+
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 10px;
+
+            box-shadow:
+                0 8px 25px
+                rgba(194, 120, 26, 0.12);
+
+            overflow-x: auto;
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 700px;
+        }
+
+
+        th {
+
+            background: #e09a3e;
+
+            color: white;
+
+            padding: 15px;
+
+            cursor: pointer;
+        }
+
+
+        th:first-child {
+
+            border-radius: 12px 0 0 12px;
+        }
+
+
+        th:last-child {
+
+            border-radius: 0 12px 12px 0;
+        }
+
+
+        td {
+
+            padding: 15px 10px;
+
+            text-align: center;
+
+            border-bottom:
+                1px solid #f4eee8;
+        }
+
+
+        tr:hover {
+
+            background: #fffaf4;
+        }
+
+
+        .status {
+
+            padding: 6px 12px;
+
+            border-radius: 20px;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+            display: inline-block;
+        }
+
+
+        .social {
+
+            background: #eee7ff;
+
+            color: #7057a9;
+        }
+
+
+        .entertainment {
+
+            background: #fff1d8;
+
+            color: #b47720;
+        }
+
+
+        .study {
+
+            background: #e7f0ff;
+
+            color: #3d6aa9;
+        }
+
+
+        .work {
+
+            background: #e2f4e8;
+
+            color: #4c8a62;
+        }
+
+
+        .other {
+
+            background: #eeeae6;
+
+            color: #6e655d;
+        }
+
+
+        #pages {
+
+            text-align: center;
+
+            margin-top: 25px;
+        }
+
+
+        #pages button {
+
+            background: #e8b56a;
+
+            min-width: 40px;
+        }
+
+
+        #pages button:hover {
+
+            background: #e09a3e;
+        }
+
+
+        .empty {
+
+            text-align: center;
+
+            padding: 30px;
+
+            color: #a59a92;
+        }
+
+
+        @media (max-width: 600px) {
+
+
+            body {
+
+                padding: 20px 12px;
+            }
+
+
+            h1 {
+
+                font-size: 30px;
+            }
+
+
+            .subtitle {
+
+                font-size: 14px;
+
+                margin-bottom: 20px;
+            }
+
+
+            .form {
+
+                padding: 18px;
+
+                border-radius: 16px;
+            }
+
+
+            .form h2 {
+
+                font-size: 21px;
+            }
+
+
+            input,
+            select {
+
+                width: 100%;
+
+                margin: 6px 0;
+
+                padding: 13px;
+            }
+
+
+            button {
+
+                width: 100%;
+
+                margin: 6px 0;
+
+                padding: 13px;
+            }
+
+
+            .filter-box {
+
+                margin-top: 15px;
+            }
+
+
+            .filter-box label {
+
+                display: block;
+
+                margin-bottom: 5px;
+            }
+
+
+            .table-box {
+
+                padding: 5px;
+
+                border-radius: 16px;
+            }
+
+
+            th,
+            td {
+
+                padding: 12px 8px;
+
+                font-size: 14px;
+            }
+
+
+            .edit,
+            .delete {
+
+                width: auto;
+
+                padding: 8px 12px;
+
+                margin: 2px;
+            }
+
+
+            .status {
+
+                font-size: 12px;
+
+                padding: 5px 8px;
+            }
+
+        }
+
+    </style>
+    <link
+    href="https://cdn.jsdelivr.net/npm/daisyui@5"
+    rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+</head>
+
+
+<body>
+
+<button
+    onclick="window.location.href='index.html'"
+    class="btn btn-soft btn-secondary
+           rounded-full
+           px-6
+           shadow-md
+           hover:shadow-lg
+           hover:-translate-y-1
+           transition-all duration-300">
+
+    ← Back to My Projects 💗
+
+</button>
+
+
+
+
+<div class="box">
+
+
+    <h1>♡ My Screen Time Tracker ♡</h1>
+
+
+    <p class="subtitle">
+
+        Keep track of the apps and sites you spend time on ✨
+
+    </p>
+
+
+
+    <div class="form">
+
+
+        <h2>➕ Add Screen Time</h2>
+
+
+        <input
+            id="name"
+            type="text"
+            placeholder="App or website"
+        >
+
+
+        <input
+            id="minutes"
+            type="number"
+            min="1"
+            placeholder="Minutes used"
+        >
+
+
+        <input
+            id="usedOn"
+            type="date"
+        >
+
+
+        <select id="category">
+
+            <option value="Social">
+                Social
+            </option>
+
+            <option value="Entertainment">
+                Entertainment
+            </option>
+
+            <option value="Study">
+                Study
+            </option>
+
+            <option value="Work">
+                Work
+            </option>
+
+            <option value="Other">
+                Other
+            </option>
+
+        </select>
+
+
+        <button
+            class="add-button"
+            onclick="addScreenTime()">
+
+            Add Screen Time
+
+        </button>
+
+
+
+        <div class="filter-box">
+
+
+            <label>📱 Show:</label>
+
+
+            <select
+                id="filter"
+                onchange="showScreenTime()">
+
+                <option value="All">
+                    All Categories
+                </option>
+
+                <option value="Social">
+                    Social
+                </option>
+
+                <option value="Entertainment">
+                    Entertainment
+                </option>
+
+                <option value="Study">
+                    Study
+                </option>
+
+                <option value="Work">
+                    Work
+                </option>
+
+                <option value="Other">
+                    Other
+                </option>
+
+            </select>
+
+
+            <button
+                class="export-button"
+                onclick="exportCSV()">
+
+                ↓ Export to CSV
+
+            </button>
+
+
+        </div>
+
+    </div>
+
+
+
+    <div class="table-box">
+
+
+        <table>
+
+
+            <thead>
+
+                <tr>
+
+                    <th onclick="sortScreenTime('name')">
+                        App / Site ↕️
+                    </th>
+
+                    <th onclick="sortScreenTime('minutes')">
+                        Time ↕️
+                    </th>
+
+                    <th onclick="sortScreenTime('usedOn')">
+                        Date ↕️
+                    </th>
+
+                    <th onclick="sortScreenTime('category')">
+                        Category ↕️
+                    </th>
+
+                    <th>
+                        Actions
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="screenTimeList">
+
+            </tbody>
+
+
+        </table>
+
+    </div>
+
+
+
+    <div id="pages"></div>
+
+
+</div>
+
+
+
+<script>
+
+
+    let db = null;
+
+    let currentPage = 1;
+
+    let sortColumn = "usedOn";
+
+    let sortOrder = "DESC";
+
+    const itemsPerPage = 20;
+
+
+
+    function formatTime(minutes) {
+
+        minutes = Number(minutes);
+
+        let hours =
+            Math.floor(minutes / 60);
+
+        let leftover =
+            minutes % 60;
+
+
+        if (hours > 0 && leftover > 0) {
+
+            return hours + "h " + leftover + "m";
+
+        }
+
+
+        if (hours > 0) {
+
+            return hours + "h";
+
+        }
+
+
+        return leftover + "m";
+
+    }
+
+
+
+    function todayDate() {
+
+        let today = new Date();
+
+        let month =
+            String(today.getMonth() + 1)
+                .padStart(2, "0");
+
+        let day =
+            String(today.getDate())
+                .padStart(2, "0");
+
+        return today.getFullYear()
+            + "-"
+            + month
+            + "-"
+            + day;
+
+    }
+
+
+
+    /*
+        SAVE DATABASE TO LOCAL STORAGE
+    */
+
+    function saveDatabase() {
+
+        let data = db.export();
+
+        let dataString = "";
+
+        for (let i = 0; i < data.length; i++) {
+
+            dataString +=
+                String.fromCharCode(data[i]);
+
+        }
+
+        let base64 =
+            btoa(dataString);
+
+        localStorage.setItem(
+            "myScreenTimeTracker",
+            base64
+        );
+
+    }
+
+
+
+    /*
+        LOAD DATABASE FROM LOCAL STORAGE
+    */
+
+    function loadDatabase(SQL) {
+
+        let savedData =
+            localStorage.getItem(
+                "myScreenTimeTracker"
+            );
+
+
+        if (savedData) {
+
+            let binary =
+                atob(savedData);
+
+            let data =
+                new Uint8Array(
+                    binary.length
+                );
+
+
+            for (
+                let i = 0;
+                i < binary.length;
+                i++
+            ) {
+
+                data[i] =
+                    binary.charCodeAt(i);
+
+            }
+
+
+            db =
+                new SQL.Database(data);
+
+        }
+
+        else {
+
+            db =
+                new SQL.Database();
+
+
+            db.run(`
+
+                CREATE TABLE screentime (
+
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                    name TEXT,
+
+                    minutes INTEGER,
+
+                    usedOn TEXT,
+
+                    category TEXT
+
+                )
+
+            `);
+
+
+            saveDatabase();
+
+        }
+
+
+        document.getElementById(
+            "usedOn"
+        ).value = todayDate();
+
+
+        showScreenTime();
+
+    }
+
+
+
+    /*
+        START SQL.JS
+    */
+
+    initSqlJs({
+
+        locateFile: function(file) {
+
+            return "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/" + file;
+
+        }
+
+    }).then(function(SQL) {
+
+        loadDatabase(SQL);
+
+    });
+
+
+
+    /*
+        ADD SCREEN TIME
+    */
+
+    function addScreenTime() {
+
+
+        if (db == null) {
+
+            alert(
+                "Please wait for the screen time tracker to load."
+            );
+
+            return;
+
+        }
+
+
+        let name =
+            document.getElementById(
+                "name"
+            ).value.trim();
+
+
+        let minutes =
+            document.getElementById(
+                "minutes"
+            ).value.trim();
+
+
+        let usedOn =
+            document.getElementById(
+                "usedOn"
+            ).value;
+
+
+        let category =
+            document.getElementById(
+                "category"
+            ).value;
+
+
+
+        if (
+            name == "" ||
+            minutes == ""
+        ) {
+
+            alert(
+                "Please enter the app or website and minutes used."
+            );
+
+            return;
+
+        }
+
+
+        if (Number(minutes) < 1) {
+
+            alert(
+                "Minutes must be at least 1."
+            );
+
+            return;
+
+        }
+
+
+        if (usedOn == "") {
+
+            usedOn = todayDate();
+
+        }
+
+
+
+        db.run(
+
+            `INSERT INTO screentime
+            (name, minutes, usedOn, category)
+            VALUES (?, ?, ?, ?)`,
+
+            [
+                name,
+                minutes,
+                usedOn,
+                category
+            ]
+
+        );
+
+
+        saveDatabase();
+
+
+        document.getElementById(
+            "name"
+        ).value = "";
+
+
+        document.getElementById(
+            "minutes"
+        ).value = "";
+
+
+        document.getElementById(
+            "usedOn"
+        ).value = todayDate();
+
+
+        currentPage = 1;
+
+
+        showScreenTime();
+
+    }
+
+
+
+    /*
+        SHOW SCREEN TIME
+    */
+
+    function showScreenTime() {
+
+
+        if (db == null) {
+
+            return;
+
+        }
+
+
+        let filter =
+            document.getElementById(
+                "filter"
+            ).value;
+
+
+        let query =
+            "SELECT * FROM screentime";
+
+
+        let values = [];
+
+
+
+        if (filter != "All") {
+
+            query +=
+                " WHERE category = ?";
+
+            values.push(filter);
+
+        }
+
+
+
+        query +=
+            " ORDER BY "
+            + sortColumn
+            + " "
+            + sortOrder;
+
+
+
+        let result =
+            db.exec(
+                query,
+                values
+            );
+
+
+        let items = [];
+
+
+
+        if (result.length > 0) {
+
+            items =
+                result[0].values;
+
+        }
+
+
+
+        let start =
+            (currentPage - 1)
+            * itemsPerPage;
+
+
+        let end =
+            start + itemsPerPage;
+
+
+        let pageItems =
+            items.slice(
+                start,
+                end
+            );
+
+
+        let list =
+            document.getElementById(
+                "screenTimeList"
+            );
+
+
+        list.innerHTML = "";
+
+
+
+        if (
+            pageItems.length == 0
+        ) {
+
+            list.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="5"
+                        class="empty">
+
+                        ♡ No screen time here yet!
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+
+
+        pageItems.forEach(
+            function(item) {
+
+
+                let id = item[0];
+
+                let name = item[1];
+
+                let minutes = item[2];
+
+                let usedOn = item[3];
+
+                let category = item[4];
+
+
+
+                let categoryClass =
+                    category
+                        .toLowerCase();
+
+
+
+                list.innerHTML += `
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                ${name}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+                            ${formatTime(minutes)}
+                        </td>
+
+
+                        <td>
+                            ${usedOn}
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="status ${categoryClass}">
+
+                                ${category}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <button
+                                class="edit"
+                                onclick="editScreenTime(${id})">
+
+                                Edit
+
+                            </button>
+
+
+                            <button
+                                class="delete"
+                                onclick="deleteScreenTime(${id})">
+
+                                Delete
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+        makePages(
+            items.length
+        );
+
+    }
+
+
+
+    /*
+        EDIT SCREEN TIME
+    */
+
+    function editScreenTime(id) {
+
+
+        let result =
+            db.exec(
+                "SELECT * FROM screentime WHERE id = ?",
+                [id]
+            );
+
+
+        if (
+            result.length == 0
+        ) {
+
+            return;
+
+        }
+
+
+        let item =
+            result[0].values[0];
+
+
+
+        let name =
+            prompt(
+                "App or website:",
+                item[1]
+            );
+
+
+        if (name == null) {
+
+            return;
+
+        }
+
+
+
+        let minutes =
+            prompt(
+                "Minutes used:",
+                item[2]
+            );
+
+
+        if (minutes == null) {
+
+            return;
+
+        }
+
+
+
+        let usedOn =
+            prompt(
+                "Date (YYYY-MM-DD):",
+                item[3]
+            );
+
+
+        if (usedOn == null) {
+
+            return;
+
+        }
+
+
+
+        let category =
+            prompt(
+                "Category (Social / Entertainment / Study / Work / Other):",
+                item[4]
+            );
+
+
+        if (category == null) {
+
+            return;
+
+        }
+
+
+
+        db.run(
+
+            `UPDATE screentime
+
+             SET name = ?,
+                 minutes = ?,
+                 usedOn = ?,
+                 category = ?
+
+             WHERE id = ?`,
+
+            [
+                name,
+                minutes,
+                usedOn,
+                category,
+                id
+            ]
+
+        );
+
+
+        saveDatabase();
+
+
+        showScreenTime();
+
+    }
+
+
+
+    /*
+        DELETE SCREEN TIME
+    */
+
+    function deleteScreenTime(id) {
+
+
+        let answer =
+            confirm(
+                "Delete this screen time entry?"
+            );
+
+
+        if (answer) {
+
+
+            db.run(
+
+                "DELETE FROM screentime WHERE id = ?",
+
+                [id]
+
+            );
+
+
+            saveDatabase();
+
+
+            showScreenTime();
+
+        }
+
+    }
+
+
+
+    /*
+        SORT SCREEN TIME
+    */
+
+    function sortScreenTime(column) {
+
+
+        if (
+            sortColumn == column
+        ) {
+
+
+            if (
+                sortOrder == "ASC"
+            ) {
+
+                sortOrder =
+                    "DESC";
+
+            }
+
+            else {
+
+                sortOrder =
+                    "ASC";
+
+            }
+
+        }
+
+        else {
+
+            sortColumn =
+                column;
+
+            sortOrder =
+                "ASC";
+
+        }
+
+
+        currentPage = 1;
+
+
+        showScreenTime();
+
+    }
+
+
+
+    /*
+        MAKE PAGE BUTTONS
+    */
+
+    function makePages(totalItems) {
+
+
+        let totalPages =
+            Math.ceil(
+                totalItems /
+                itemsPerPage
+            );
+
+
+        let pages =
+            document.getElementById(
+                "pages"
+            );
+
+
+        pages.innerHTML = "";
+
+
+
+        for (
+            let i = 1;
+            i <= totalPages;
+            i++
+        ) {
+
+
+            pages.innerHTML += `
+
+                <button
+                    onclick="goToPage(${i})">
+
+                    ${i}
+
+                </button>
+
+            `;
+
+        }
+
+    }
+
+
+
+    /*
+        CHANGE PAGE
+    */
+
+    function goToPage(page) {
+
+
+        currentPage = page;
+
+
+        showScreenTime();
+
+    }
+
+
+
+    /*
+        EXPORT TO CSV
+    */
+
+    function exportCSV() {
+
+
+        if (db == null) {
+
+            alert(
+                "Please wait for the screen time tracker to load."
+            );
+
+            return;
+
+        }
+
+
+        let result =
+            db.exec(
+                `SELECT name, minutes, usedOn, category
+                 FROM screentime`
+            );
+
+
+
+        if (
+            result.length == 0
+        ) {
+
+            alert(
+                "There is no screen time to export!"
+            );
+
+            return;
+
+        }
+
+
+
+        let items =
+            result[0].values;
+
+
+        let csv =
+            "App/Site,Minutes,Date,Category\n";
+
+
+
+        items.forEach(
+            function(item) {
+
+
+                let name =
+                    item[0];
+
+                let minutes =
+                    item[1];
+
+                let usedOn =
+                    item[2];
+
+                let category =
+                    item[3];
+
+
+
+                csv +=
+                    '"' +
+                    name +
+                    '",' +
+
+                    minutes +
+                    "," +
+
+                    '"' +
+                    usedOn +
+                    '",' +
+
+                    '"' +
+                    category +
+                    '"\n';
+
+            }
+        );
+
+
+
+        let file =
+            new Blob(
+
+                [csv],
+
+                {
+                    type:
+                        "text/csv"
+                }
+
+            );
+
+
+        let link =
+            document.createElement(
+                "a"
+            );
+
+
+        link.href =
+            URL.createObjectURL(
+                file
+            );
+
+
+        link.download =
+            "my-screen-time.csv";
+
+
+        link.click();
+
+    }
+
+
+</script>
+
+
+</body>
+
+</html>
