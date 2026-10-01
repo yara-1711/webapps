@@ -8,7 +8,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-    <title>My Book Tracker</title>
+    <title>My Medicine Tracker</title>
 
 
     <!-- SQL.js -->
@@ -29,7 +29,7 @@
 
             background: linear-gradient(
                 135deg,
-                #eee8ff,
+                #e8f7f4,
                 #fdf8ef
             );
 
@@ -39,7 +39,7 @@
 
             padding: 40px 20px;
 
-            color: #3f3b4d;
+            color: #3b4d48;
         }
 
 
@@ -51,13 +51,11 @@
         }
 
 
-        /* Title */
-
         h1 {
 
             text-align: center;
 
-            color: #63539b;
+            color: #2f7a6f;
 
             font-size: 38px;
 
@@ -71,13 +69,11 @@
 
             text-align: center;
 
-            color: #817b91;
+            color: #7b918c;
 
             margin-bottom: 30px;
         }
 
-
-        /* Add book card */
 
         .form {
 
@@ -89,7 +85,7 @@
 
             box-shadow:
                 0 8px 25px
-                rgba(99, 83, 155, 0.12);
+                rgba(47, 122, 111, 0.12);
 
             margin-bottom: 25px;
         }
@@ -99,7 +95,7 @@
 
             margin-top: 0;
 
-            color: #63539b;
+            color: #2f7a6f;
         }
 
 
@@ -110,13 +106,13 @@
 
             margin: 5px;
 
-            border: 1px solid #ddd6ed;
+            border: 1px solid #d6ede8;
 
             border-radius: 10px;
 
-            background: #faf9ff;
+            background: #f9fffd;
 
-            color: #454052;
+            color: #40524e;
 
             outline: none;
         }
@@ -125,7 +121,7 @@
         input:focus,
         select:focus {
 
-            border-color: #8b79c7;
+            border-color: #4aa392;
         }
 
 
@@ -141,8 +137,6 @@
         }
 
 
-        /* Buttons */
-
         button {
 
             padding: 11px 17px;
@@ -157,7 +151,7 @@
 
             color: white;
 
-            background: #7564b5;
+            background: #3d9a8a;
 
             font-weight: bold;
 
@@ -175,7 +169,7 @@
 
         .add-button {
 
-            background: #7564b5;
+            background: #3d9a8a;
 
             padding: 12px 22px;
         }
@@ -193,15 +187,13 @@
         }
 
 
-        /* Filter */
-
         .filter-box {
 
             margin-top: 20px;
 
             padding-top: 15px;
 
-            border-top: 1px solid #eee9f5;
+            border-top: 1px solid #e9f5f2;
         }
 
 
@@ -209,25 +201,21 @@
 
             font-weight: bold;
 
-            color: #63539b;
+            color: #2f7a6f;
         }
 
 
-        /* Export */
-
         .export-button {
 
-            background: #8b79c7;
+            background: #4aa392;
         }
 
 
         .export-button:hover {
 
-            background: #6f5bab;
+            background: #2f7a6f;
         }
 
-
-        /* Table */
 
         .table-box {
 
@@ -239,7 +227,7 @@
 
             box-shadow:
                 0 8px 25px
-                rgba(99, 83, 155, 0.12);
+                rgba(47, 122, 111, 0.12);
 
             overflow-x: auto;
         }
@@ -257,7 +245,7 @@
 
         th {
 
-            background: #7564b5;
+            background: #3d9a8a;
 
             color: white;
 
@@ -286,17 +274,15 @@
             text-align: center;
 
             border-bottom:
-                1px solid #eeeaf4;
+                1px solid #eaf4f1;
         }
 
 
         tr:hover {
 
-            background: #faf8ff;
+            background: #f8fffd;
         }
 
-
-        /* Status */
 
         .status {
 
@@ -312,15 +298,15 @@
         }
 
 
-        .want {
+        .active {
 
-            background: #eee7ff;
+            background: #e2f4e8;
 
-            color: #7057a9;
+            color: #4c8a62;
         }
 
 
-        .reading {
+        .paused {
 
             background: #fff1d8;
 
@@ -330,13 +316,11 @@
 
         .finished {
 
-            background: #e2f4e8;
+            background: #eee7ff;
 
-            color: #4c8a62;
+            color: #7057a9;
         }
 
-
-        /* Pages */
 
         #pages {
 
@@ -348,7 +332,7 @@
 
         #pages button {
 
-            background: #a394d2;
+            background: #7ec4b6;
 
             min-width: 40px;
         }
@@ -356,11 +340,9 @@
 
         #pages button:hover {
 
-            background: #7564b5;
+            background: #3d9a8a;
         }
 
-
-        /* Empty message */
 
         .empty {
 
@@ -368,11 +350,9 @@
 
             padding: 30px;
 
-            color: #9992a5;
+            color: #92a59f;
         }
 
-
-        /* Mobile */
 
         @media (max-width: 600px) {
 
@@ -515,49 +495,70 @@
 <div class="box">
 
 
-    <!-- Title -->
-
-    <h1>♡ My Book Tracker ♡</h1>
+    <h1>♡ My Medicine Tracker ♡</h1>
 
 
     <p class="subtitle">
 
-        Keep track of all the stories you're reading ✨
+        Keep track of medicines, doses, and when to take them ✨
 
     </p>
 
 
 
-    <!-- Add Book -->
-
     <div class="form">
 
 
-        <h2>➕ Add a Book</h2>
+        <h2>➕ Add a Medicine</h2>
 
 
         <input
-            id="title"
+            id="name"
             type="text"
-            placeholder="Book title"
+            placeholder="Medicine name"
         >
 
 
         <input
-            id="author"
+            id="dosage"
             type="text"
-            placeholder="Author"
+            placeholder="Dosage (e.g. 500mg)"
         >
+
+
+        <select id="schedule">
+
+            <option value="Morning">
+                Morning
+            </option>
+
+            <option value="Afternoon">
+                Afternoon
+            </option>
+
+            <option value="Evening">
+                Evening
+            </option>
+
+            <option value="Night">
+                Night
+            </option>
+
+            <option value="As needed">
+                As needed
+            </option>
+
+        </select>
 
 
         <select id="status">
 
-            <option value="Want to Read">
-                Want to Read
+            <option value="Active">
+                Active
             </option>
 
-            <option value="Reading">
-                Reading
+            <option value="Paused">
+                Paused
             </option>
 
             <option value="Finished">
@@ -567,67 +568,36 @@
         </select>
 
 
-        <select id="rating">
-
-            <option value="0">
-                No Rating
-            </option>
-
-            <option value="1">
-                ⭐
-            </option>
-
-            <option value="2">
-                ⭐⭐
-            </option>
-
-            <option value="3">
-                ⭐⭐⭐
-            </option>
-
-            <option value="4">
-                ⭐⭐⭐⭐
-            </option>
-
-            <option value="5">
-                ⭐⭐⭐⭐⭐
-            </option>
-
-        </select>
-
-
         <button
             class="add-button"
-            onclick="addBook()">
+            onclick="addMedicine()">
 
-            Add Book
+            Add Medicine
 
         </button>
 
 
 
-        <!-- Filter -->
-
         <div class="filter-box">
 
 
-            <label>📖 Show:</label>
+            <label>💊 Show:</label>
 
 
             <select
                 id="filter"
-                onchange="showBooks()">
+                onchange="showMedicines()">
 
                 <option value="All">
-                    All Books
+                    All Medicines
                 </option>
 
-                <option value="Want to Read">
-                    Want to Read
+                <option value="Active">
+                    Active
                 </option>
 
-                <option value="Reading">
-                    Reading
+                <option value="Paused">
+                    Paused
                 </option>
 
                 <option value="Finished">
@@ -652,8 +622,6 @@
 
 
 
-    <!-- Books table -->
-
     <div class="table-box">
 
 
@@ -664,20 +632,20 @@
 
                 <tr>
 
-                    <th onclick="sortBooks('title')">
-                        Title ↕️
+                    <th onclick="sortMedicines('name')">
+                        Name ↕️
                     </th>
 
-                    <th onclick="sortBooks('author')">
-                        Author ↕️
+                    <th onclick="sortMedicines('dosage')">
+                        Dosage ↕️
                     </th>
 
-                    <th onclick="sortBooks('status')">
+                    <th onclick="sortMedicines('schedule')">
+                        Schedule ↕️
+                    </th>
+
+                    <th onclick="sortMedicines('status')">
                         Status ↕️
-                    </th>
-
-                    <th onclick="sortBooks('rating')">
-                        Rating ↕️
                     </th>
 
                     <th>
@@ -689,7 +657,7 @@
             </thead>
 
 
-            <tbody id="bookList">
+            <tbody id="medicineList">
 
             </tbody>
 
@@ -699,8 +667,6 @@
     </div>
 
 
-
-    <!-- Pages -->
 
     <div id="pages"></div>
 
@@ -716,11 +682,11 @@
 
     let currentPage = 1;
 
-    let sortColumn = "title";
+    let sortColumn = "name";
 
     let sortOrder = "ASC";
 
-    const booksPerPage = 20;
+    const medicinesPerPage = 20;
 
 
 
@@ -745,7 +711,7 @@
             btoa(dataString);
 
         localStorage.setItem(
-            "myBookTracker",
+            "myMedicineTracker",
             base64
         );
 
@@ -761,7 +727,7 @@
 
         let savedData =
             localStorage.getItem(
-                "myBookTracker"
+                "myMedicineTracker"
             );
 
 
@@ -801,17 +767,17 @@
 
             db.run(`
 
-                CREATE TABLE books (
+                CREATE TABLE medicines (
 
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-                    title TEXT,
+                    name TEXT,
 
-                    author TEXT,
+                    dosage TEXT,
 
-                    status TEXT,
+                    schedule TEXT,
 
-                    rating INTEGER
+                    status TEXT
 
                 )
 
@@ -823,7 +789,7 @@
         }
 
 
-        showBooks();
+        showMedicines();
 
     }
 
@@ -850,16 +816,16 @@
 
 
     /*
-        ADD BOOK
+        ADD MEDICINE
     */
 
-    function addBook() {
+    function addMedicine() {
 
 
         if (db == null) {
 
             alert(
-                "Please wait for the book tracker to load."
+                "Please wait for the medicine tracker to load."
             );
 
             return;
@@ -867,16 +833,22 @@
         }
 
 
-        let title =
+        let name =
             document.getElementById(
-                "title"
+                "name"
             ).value.trim();
 
 
-        let author =
+        let dosage =
             document.getElementById(
-                "author"
+                "dosage"
             ).value.trim();
+
+
+        let schedule =
+            document.getElementById(
+                "schedule"
+            ).value;
 
 
         let status =
@@ -885,20 +857,14 @@
             ).value;
 
 
-        let rating =
-            document.getElementById(
-                "rating"
-            ).value;
-
-
 
         if (
-            title == "" ||
-            author == ""
+            name == "" ||
+            dosage == ""
         ) {
 
             alert(
-                "Please enter the title and author."
+                "Please enter the medicine name and dosage."
             );
 
             return;
@@ -909,57 +875,47 @@
 
         db.run(
 
-            `INSERT INTO books
-            (title, author, status, rating)
+            `INSERT INTO medicines
+            (name, dosage, schedule, status)
             VALUES (?, ?, ?, ?)`,
 
             [
-                title,
-                author,
-                status,
-                rating
+                name,
+                dosage,
+                schedule,
+                status
             ]
 
         );
 
 
-        /*
-            SAVE AFTER ADDING
-        */
-
         saveDatabase();
 
 
-
         document.getElementById(
-            "title"
+            "name"
         ).value = "";
 
 
         document.getElementById(
-            "author"
+            "dosage"
         ).value = "";
-
-
-        document.getElementById(
-            "rating"
-        ).value = "0";
 
 
         currentPage = 1;
 
 
-        showBooks();
+        showMedicines();
 
     }
 
 
 
     /*
-        SHOW BOOKS
+        SHOW MEDICINES
     */
 
-    function showBooks() {
+    function showMedicines() {
 
 
         if (db == null) {
@@ -976,7 +932,7 @@
 
 
         let query =
-            "SELECT * FROM books";
+            "SELECT * FROM medicines";
 
 
         let values = [];
@@ -1009,13 +965,13 @@
             );
 
 
-        let books = [];
+        let medicines = [];
 
 
 
         if (result.length > 0) {
 
-            books =
+            medicines =
                 result[0].values;
 
         }
@@ -1024,15 +980,15 @@
 
         let start =
             (currentPage - 1)
-            * booksPerPage;
+            * medicinesPerPage;
 
 
         let end =
-            start + booksPerPage;
+            start + medicinesPerPage;
 
 
-        let pageBooks =
-            books.slice(
+        let pageMedicines =
+            medicines.slice(
                 start,
                 end
             );
@@ -1040,7 +996,7 @@
 
         let list =
             document.getElementById(
-                "bookList"
+                "medicineList"
             );
 
 
@@ -1049,7 +1005,7 @@
 
 
         if (
-            pageBooks.length == 0
+            pageMedicines.length == 0
         ) {
 
             list.innerHTML = `
@@ -1060,7 +1016,7 @@
                         colspan="5"
                         class="empty">
 
-                        ♡ No books here yet!
+                        ♡ No medicines here yet!
 
                     </td>
 
@@ -1072,65 +1028,42 @@
 
 
 
-        pageBooks.forEach(
-            function(book) {
+        pageMedicines.forEach(
+            function(medicine) {
 
 
-                let id = book[0];
+                let id = medicine[0];
 
-                let title = book[1];
+                let name = medicine[1];
 
-                let author = book[2];
+                let dosage = medicine[2];
 
-                let status = book[3];
+                let schedule = medicine[3];
 
-                let rating = book[4];
-
-
-
-                /*
-                    MAKE STARS
-                */
-
-                let stars = "";
+                let status = medicine[4];
 
 
-                for (
-                    let i = 0;
-                    i < rating;
-                    i++
-                ) {
-
-                    stars += "⭐";
-
-                }
-
-
-
-                /*
-                    STATUS COLOUR
-                */
 
                 let statusClass = "";
 
 
                 if (
                     status ==
-                    "Want to Read"
+                    "Active"
                 ) {
 
                     statusClass =
-                        "want";
+                        "active";
 
                 }
 
                 else if (
                     status ==
-                    "Reading"
+                    "Paused"
                 ) {
 
                     statusClass =
-                        "reading";
+                        "paused";
 
                 }
 
@@ -1143,10 +1076,6 @@
 
 
 
-                /*
-                    ADD ROW
-                */
-
                 list.innerHTML += `
 
                     <tr>
@@ -1154,14 +1083,19 @@
                         <td>
 
                             <strong>
-                                ${title}
+                                ${name}
                             </strong>
 
                         </td>
 
 
                         <td>
-                            ${author}
+                            ${dosage}
+                        </td>
+
+
+                        <td>
+                            ${schedule}
                         </td>
 
 
@@ -1179,16 +1113,9 @@
 
                         <td>
 
-                            ${stars || "—"}
-
-                        </td>
-
-
-                        <td>
-
                             <button
                                 class="edit"
-                                onclick="editBook(${id})">
+                                onclick="editMedicine(${id})">
 
                                 Edit
 
@@ -1197,7 +1124,7 @@
 
                             <button
                                 class="delete"
-                                onclick="deleteBook(${id})">
+                                onclick="deleteMedicine(${id})">
 
                                 Delete
 
@@ -1214,7 +1141,7 @@
 
 
         makePages(
-            books.length
+            medicines.length
         );
 
     }
@@ -1222,15 +1149,15 @@
 
 
     /*
-        EDIT BOOK
+        EDIT MEDICINE
     */
 
-    function editBook(id) {
+    function editMedicine(id) {
 
 
         let result =
             db.exec(
-                "SELECT * FROM books WHERE id = ?",
+                "SELECT * FROM medicines WHERE id = ?",
                 [id]
             );
 
@@ -1244,19 +1171,19 @@
         }
 
 
-        let book =
+        let medicine =
             result[0].values[0];
 
 
 
-        let title =
+        let name =
             prompt(
-                "Book title:",
-                book[1]
+                "Medicine name:",
+                medicine[1]
             );
 
 
-        if (title == null) {
+        if (name == null) {
 
             return;
 
@@ -1264,14 +1191,29 @@
 
 
 
-        let author =
+        let dosage =
             prompt(
-                "Author:",
-                book[2]
+                "Dosage:",
+                medicine[2]
             );
 
 
-        if (author == null) {
+        if (dosage == null) {
+
+            return;
+
+        }
+
+
+
+        let schedule =
+            prompt(
+                "Schedule (Morning / Afternoon / Evening / Night / As needed):",
+                medicine[3]
+            );
+
+
+        if (schedule == null) {
 
             return;
 
@@ -1281,8 +1223,8 @@
 
         let status =
             prompt(
-                "Status (Want to Read / Reading / Finished):",
-                book[3]
+                "Status (Active / Paused / Finished):",
+                medicine[4]
             );
 
 
@@ -1294,67 +1236,47 @@
 
 
 
-        let rating =
-            prompt(
-                "Rating from 0 to 5:",
-                book[4]
-            );
-
-
-        if (rating == null) {
-
-            return;
-
-        }
-
-
-
         db.run(
 
-            `UPDATE books
+            `UPDATE medicines
 
-             SET title = ?,
-                 author = ?,
-                 status = ?,
-                 rating = ?
+             SET name = ?,
+                 dosage = ?,
+                 schedule = ?,
+                 status = ?
 
              WHERE id = ?`,
 
             [
-                title,
-                author,
+                name,
+                dosage,
+                schedule,
                 status,
-                rating,
                 id
             ]
 
         );
 
 
-
-        /*
-            SAVE AFTER EDIT
-        */
-
         saveDatabase();
 
 
-        showBooks();
+        showMedicines();
 
     }
 
 
 
     /*
-        DELETE BOOK
+        DELETE MEDICINE
     */
 
-    function deleteBook(id) {
+    function deleteMedicine(id) {
 
 
         let answer =
             confirm(
-                "Delete this book?"
+                "Delete this medicine?"
             );
 
 
@@ -1363,21 +1285,17 @@
 
             db.run(
 
-                "DELETE FROM books WHERE id = ?",
+                "DELETE FROM medicines WHERE id = ?",
 
                 [id]
 
             );
 
 
-            /*
-                SAVE AFTER DELETE
-            */
-
             saveDatabase();
 
 
-            showBooks();
+            showMedicines();
 
         }
 
@@ -1386,10 +1304,10 @@
 
 
     /*
-        SORT BOOKS
+        SORT MEDICINES
     */
 
-    function sortBooks(column) {
+    function sortMedicines(column) {
 
 
         if (
@@ -1429,7 +1347,7 @@
         currentPage = 1;
 
 
-        showBooks();
+        showMedicines();
 
     }
 
@@ -1439,13 +1357,13 @@
         MAKE PAGE BUTTONS
     */
 
-    function makePages(totalBooks) {
+    function makePages(totalMedicines) {
 
 
         let totalPages =
             Math.ceil(
-                totalBooks /
-                booksPerPage
+                totalMedicines /
+                medicinesPerPage
             );
 
 
@@ -1493,7 +1411,7 @@
         currentPage = page;
 
 
-        showBooks();
+        showMedicines();
 
     }
 
@@ -1509,7 +1427,7 @@
         if (db == null) {
 
             alert(
-                "Please wait for the book tracker to load."
+                "Please wait for the medicine tracker to load."
             );
 
             return;
@@ -1519,8 +1437,8 @@
 
         let result =
             db.exec(
-                `SELECT title, author, status, rating
-                 FROM books`
+                `SELECT name, dosage, schedule, status
+                 FROM medicines`
             );
 
 
@@ -1530,7 +1448,7 @@
         ) {
 
             alert(
-                "There are no books to export!"
+                "There are no medicines to export!"
             );
 
             return;
@@ -1539,48 +1457,49 @@
 
 
 
-        let books =
+        let medicines =
             result[0].values;
 
 
         let csv =
-            "Title,Author,Status,Rating\n";
+            "Name,Dosage,Schedule,Status\n";
 
 
 
-        books.forEach(
-            function(book) {
+        medicines.forEach(
+            function(medicine) {
 
 
-                let title =
-                    book[0];
+                let name =
+                    medicine[0];
 
-                let author =
-                    book[1];
+                let dosage =
+                    medicine[1];
+
+                let schedule =
+                    medicine[2];
 
                 let status =
-                    book[2];
-
-                let rating =
-                    book[3];
+                    medicine[3];
 
 
 
                 csv +=
                     '"' +
-                    title +
+                    name +
                     '",' +
 
                     '"' +
-                    author +
+                    dosage +
+                    '",' +
+
+                    '"' +
+                    schedule +
                     '",' +
 
                     '"' +
                     status +
-                    '",' +
-
-                    rating +
-                    "\n";
+                    '"\n';
 
             }
         );
@@ -1600,7 +1519,6 @@
             );
 
 
-
         let link =
             document.createElement(
                 "a"
@@ -1614,7 +1532,7 @@
 
 
         link.download =
-            "my-books.csv";
+            "my-medicines.csv";
 
 
         link.click();
