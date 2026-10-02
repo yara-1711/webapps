@@ -1,577 +1,263 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Manager</title>
-
-    <!-- SQL.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/responsive.css">
     <style>
-    
+        * { box-sizing: border-box; }
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             background: #f3f6ff;
-            padding: 30px;
+            margin: 0;
+            padding: 28px 16px 40px;
+            color: #2c3358;
         }
-
-        .box {
-            max-width: 1000px;
-            margin: auto;
-        }
-
-        h1 {
-            color: #4056d6;
-        }
-
-        .form {
+        .box { max-width: 1000px; margin: auto; }
+        h1 { color: #4056d6; font-size: 32px; margin: 8px 0 16px; }
+        .form, .table-box {
             background: white;
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 3px 10px #ccc;
+            box-shadow: 0 3px 10px #d5dcf3;
         }
-
+        .table-box { margin-top: 25px; overflow-x: auto; padding: 10px; }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         input, select, button {
             padding: 10px;
-            margin: 5px;
             border-radius: 6px;
             border: 1px solid #ccc;
+            font-size: 16px;
         }
-
+        input { width: min(180px, 100%); }
         button {
             background: #4056d6;
             color: white;
             border: none;
             cursor: pointer;
+            font-weight: bold;
         }
-
-        button:hover {
-            background: #293bb0;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 25px;
-            background: white;
-            border-collapse: collapse;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        th {
-            background: #4056d6;
-            color: white;
-            padding: 12px;
-            cursor: pointer;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
-        }
-
-        .delete {
-            background: #e74c3c;
-        }
-
-        .edit {
-            background: #27ae60;
-        }
-
-        #pages {
-            text-align: center;
-            margin-top: 20px;
+        .delete { background: #e74c3c; }
+        .edit { background: #27ae60; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #4056d6; color: white; padding: 12px; cursor: pointer; white-space: nowrap; }
+        td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; }
+        #pages { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; }
+        #pages button { min-width: 40px; width: auto; }
+        .empty { text-align: center; color: #7d86a8; padding: 24px; }
+        .action-buttons { display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+        @media (max-width: 720px) {
+            body { padding: 16px 12px 28px; }
+            h1 { font-size: 26px; }
+            .controls { display: grid; }
+            input, select, .form button { width: 100%; }
+            .edit, .delete, #pages button { width: auto; }
         }
     </style>
-    <link
-    href="https://cdn.jsdelivr.net/npm/daisyui@5"
-    rel="stylesheet">
-
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/records.js"></script>
 </head>
-
 <body>
-   
-   <button
-    onclick="window.location.href='index.html'"
-    class="btn btn-soft btn-secondary
-           rounded-full
-           px-6
-           shadow-md
-           hover:shadow-lg
-           hover:-translate-y-1
-           transition-all duration-300">
-
-    ← Back to My Projects 💗
-
-</button>
-
-
-<div class="box">
-
-    <h1 class="text-3xl font-bold text-indigo-600">🎓 Student Manager</h1>
-
-    <div class="form">
-
-        <input id="studentName" placeholder="Student Name">
-
-        <input id="studentGrade"
-               type="number"
-               placeholder="Grade">
-
-        <input id="studentDob"
-               type="date">
-
-        <input id="studentAddress"
-               placeholder="Address">
-
-        <button onclick="addStudent()">Add Student</button>
-
-        <br>
-
-        <select id="gradeFilter" onchange="showStudents()">
-            <option value="">All Grades</option>
-        </select>
-
-        <button onclick="exportCSV()">📄 Export CSV</button>
-
+    <div id="appRoot" hidden>
+        <div class="box">
+            <div class="top-bar">
+                <a href="index.html" class="btn btn-soft btn-secondary rounded-full px-6 shadow-md">← Back to My Projects 💗</a>
+                <div id="sessionSlot"></div>
+            </div>
+            <h1>🎓 Student Manager</h1>
+            <div class="form">
+                <div class="controls">
+                    <input id="studentName" placeholder="Student Name">
+                    <input id="studentGrade" type="number" placeholder="Grade">
+                    <input id="studentDob" type="date" aria-label="Date of birth">
+                    <input id="studentAddress" placeholder="Address">
+                    <button id="addStudent" type="button">Add Student</button>
+                </div>
+                <div class="controls" style="margin-top: 12px;">
+                    <select id="gradeFilter" aria-label="Filter by grade">
+                        <option value="">All Grades</option>
+                    </select>
+                    <button id="exportCsv" type="button">📄 Export CSV</button>
+                </div>
+            </div>
+            <div class="table-box">
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-sort="rollNo">Roll No. ↕</th>
+                            <th data-sort="name">Name ↕</th>
+                            <th data-sort="grade">Grade ↕</th>
+                            <th data-sort="dob">DOB ↕</th>
+                            <th data-sort="address">Address ↕</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentList"></tbody>
+                </table>
+            </div>
+            <div id="pages"></div>
+        </div>
     </div>
-
-
-    <table>
-
-        <thead>
-            <tr>
-                <th onclick="sortStudents('roll_no')">
-                    Roll No. ↕
-                </th>
-
-                <th onclick="sortStudents('name')">
-                    Name ↕
-                </th>
-
-                <th onclick="sortStudents('grade')">
-                    Grade ↕
-                </th>
-
-                <th onclick="sortStudents('dob')">
-                    DOB ↕
-                </th>
-
-                <th onclick="sortStudents('address')">
-                    Address ↕
-                </th>
-
-                <th>Actions</th>
-            </tr>
-        </thead>
-
-        <tbody id="studentList"></tbody>
-
-    </table>
-
-    <div id="pages"></div>
-
-</div>
-
-
-<script>
-
-let db;
-
-let page = 1;
-
-let sortColumn = "roll_no";
-
-let sortOrder = "ASC";
-
-
-// Start SQL.js
-initSqlJs({
-
-    locateFile: function(file) {
-
-        return "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/" + file;
-
-    }
-
-}).then(function(SQL) {
-
-    // Create database
-    db = new SQL.Database();
-
-    // Create table
-    db.run(`
-        CREATE TABLE students (
-
-            roll_no INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            name TEXT,
-
-            grade INTEGER,
-
-            dob TEXT,
-
-            address TEXT
-
-        )
-    `);
-
-    showStudents();
-
-});
-
-
-// ADD STUDENT
-function addStudent() {
-
-    let name =
-        document.getElementById("studentName").value;
-
-    let grade =
-        document.getElementById("studentGrade").value;
-
-    let dob =
-        document.getElementById("studentDob").value;
-
-    let address =
-        document.getElementById("studentAddress").value;
-
-
-    // Check if name and grade are filled
-    if (name == "" || grade == "") {
-
-        alert("Please enter the name and grade.");
-
-        return;
-    }
-
-
-    // Add to SQL database
-    db.run(
-        `INSERT INTO students
-        (name, grade, dob, address)
-        VALUES (?, ?, ?, ?)`,
-        
-        [name, grade, dob, address]
-    );
-
-
-    // Clear boxes
-    document.getElementById("studentName").value = "";
-
-    document.getElementById("studentGrade").value = "";
-
-    document.getElementById("studentDob").value = "";
-
-    document.getElementById("studentAddress").value = "";
-
-
-    showStudents();
-}
-
-
-// SHOW STUDENTS
-function showStudents() {
-
-    let filter =
-        document.getElementById("gradeFilter").value;
-
-
-    let sql = "SELECT * FROM students";
-
-
-    // Filter by grade
-    if (filter != "") {
-
-        sql += " WHERE grade = " + filter;
-
-    }
-
-
-    // Sort
-    sql +=
-        " ORDER BY " +
-        sortColumn +
-        " " +
-        sortOrder;
-
-
-    let result = db.exec(sql);
-
-
-    let students = [];
-
-
-    if (result.length > 0) {
-
-        students = result[0].values;
-
-    }
-
-
-    // Show 20 students
-    let start = (page - 1) * 20;
-
-    let currentStudents =
-        students.slice(start, start + 20);
-
-
-    document.getElementById("studentList").innerHTML = "";
-
-
-    currentStudents.forEach(function(student) {
-
-        document.getElementById("studentList").innerHTML += `
-
-            <tr>
-
-                <td>${student[0]}</td>
-
-                <td>${student[1]}</td>
-
-                <td>${student[2]}</td>
-
-                <td>${student[3]}</td>
-
-                <td>${student[4]}</td>
-
-                <td>
-
-                    <button
-                        class="edit"
-                        onclick="editStudent(${student[0]})">
-                        Edit
-                    </button>
-
-                    <button
-                        class="delete"
-                        onclick="deleteStudent(${student[0]})">
-                        Delete
-                    </button>
-
-                </td>
-
-            </tr>
-
-        `;
-
-    });
-
-
-    makePages(students.length);
-
-    makeGradeFilter(students);
-}
-
-
-// EDIT STUDENT
-function editStudent(id) {
-
-    let name =
-        prompt("Enter name:");
-
-    if (name == null) return;
-
-
-    let grade =
-        prompt("Enter grade:");
-
-    let dob =
-        prompt("Enter DOB:");
-
-    let address =
-        prompt("Enter address:");
-
-
-    db.run(
-        `UPDATE students
-
-         SET name = ?,
-             grade = ?,
-             dob = ?,
-             address = ?
-
-         WHERE roll_no = ?`,
-
-        [name, grade, dob, address, id]
-    );
-
-
-    showStudents();
-}
-
-
-// DELETE STUDENT
-function deleteStudent(id) {
-
-    if (confirm("Delete this student?")) {
-
-        db.run(
-            "DELETE FROM students WHERE roll_no = ?",
-            [id]
-        );
-
-        showStudents();
-    }
-}
-
-
-// SORT
-function sortStudents(column) {
-
-    if (sortColumn == column) {
-
-        if (sortOrder == "ASC") {
-
-            sortOrder = "DESC";
-
-        } else {
-
-            sortOrder = "ASC";
-
+    <script>
+        var students = [];
+        var rebuildingFilter = false;
+        var page = 1;
+        var sortColumn = "rollNo";
+        var sortOrder = "ASC";
+        var perPage = 20;
+
+        function nextRoll() {
+            return students.reduce(function (max, student) {
+                return Math.max(max, Number(student.rollNo) || 0);
+            }, 0) + 1;
         }
 
-    } else {
-
-        sortColumn = column;
-
-        sortOrder = "ASC";
-
-    }
-
-
-    showStudents();
-}
-
-
-// GRADE FILTER
-function makeGradeFilter(students) {
-
-    let filter =
-        document.getElementById("gradeFilter");
-
-
-    let oldValue = filter.value;
-
-
-    filter.innerHTML =
-        `<option value="">All Grades</option>`;
-
-
-    let grades = [];
-
-
-    students.forEach(function(student) {
-
-        let grade = student[2];
-
-
-        if (!grades.includes(grade)) {
-
-            grades.push(grade);
-
+        function makeGradeFilter() {
+            rebuildingFilter = true;
+            var filter = document.getElementById("gradeFilter");
+            var oldValue = filter.value;
+            var grades = [];
+            students.forEach(function (student) {
+                var grade = String(student.grade);
+                if (grade && grades.indexOf(grade) === -1) grades.push(grade);
+            });
+            grades.sort(function (a, b) { return Number(a) - Number(b); });
+            filter.innerHTML = '<option value="">All Grades</option>' + grades.map(function (grade) {
+                return '<option value="' + AppAuth.escape(grade) + '">Grade ' + AppAuth.escape(grade) + '</option>';
+            }).join("");
+            if (grades.indexOf(oldValue) !== -1 || oldValue === "") filter.value = oldValue;
+            rebuildingFilter = false;
         }
 
-    });
+        function showStudents() {
+            var filter = document.getElementById("gradeFilter").value;
+            var visible = students.filter(function (student) {
+                return filter === "" || String(student.grade) === filter;
+            });
+            visible = Records.sortBy(visible, sortColumn, sortOrder);
+            var view = Records.paginate(visible, page, perPage);
+            page = view.page || 1;
+            var list = document.getElementById("studentList");
+            if (view.rows.length === 0) {
+                list.innerHTML = '<tr><td colspan="6" class="empty">No students yet.</td></tr>';
+            } else {
+                list.innerHTML = view.rows.map(function (student) {
+                    return '<tr>' +
+                        '<td data-label="Roll No.">' + AppAuth.escape(student.rollNo) + '</td>' +
+                        '<td data-label="Name">' + AppAuth.escape(student.name) + '</td>' +
+                        '<td data-label="Grade">' + AppAuth.escape(student.grade) + '</td>' +
+                        '<td data-label="DOB">' + AppAuth.escape(student.dob) + '</td>' +
+                        '<td data-label="Address">' + AppAuth.escape(student.address) + '</td>' +
+                        '<td class="actions" data-label="Actions"><span class="action-buttons">' +
+                        '<button class="edit" type="button" data-action="edit" data-id="' + AppAuth.escape(student.id) + '">Edit</button>' +
+                        '<button class="delete" type="button" data-action="delete" data-id="' + AppAuth.escape(student.id) + '">Delete</button>' +
+                        '</span></td></tr>';
+                }).join("");
+            }
+            var pages = document.getElementById("pages");
+            pages.innerHTML = "";
+            for (var i = 1; i <= view.totalPages; i++) {
+                pages.innerHTML += '<button type="button" data-page="' + i + '">' + i + '</button>';
+            }
+            makeGradeFilter();
+        }
 
+        document.getElementById("addStudent").addEventListener("click", function () {
+            var name = document.getElementById("studentName").value.trim();
+            var grade = document.getElementById("studentGrade").value.trim();
+            if (!name || !grade) {
+                alert("Please enter the name and grade.");
+                return;
+            }
+            AppAuth.add("students", {
+                rollNo: nextRoll(),
+                name: name,
+                grade: Number(grade),
+                dob: document.getElementById("studentDob").value,
+                address: document.getElementById("studentAddress").value.trim()
+            }).then(function () {
+                document.getElementById("studentName").value = "";
+                document.getElementById("studentGrade").value = "";
+                document.getElementById("studentDob").value = "";
+                document.getElementById("studentAddress").value = "";
+            }).catch(function (error) { AppAuth.showDataError(error); });
+        });
 
-    grades.sort();
+        document.getElementById("studentList").addEventListener("click", function (event) {
+            var button = event.target.closest("[data-action]");
+            if (!button) return;
+            var id = button.getAttribute("data-id");
+            var student = students.find(function (row) { return row.id === id; });
+            if (!student) return;
+            if (button.getAttribute("data-action") === "delete") {
+                if (confirm("Delete this student?")) {
+                    AppAuth.remove("students", id).catch(function (error) { AppAuth.showDataError(error); });
+                }
+                return;
+            }
+            var name = prompt("Enter name:", student.name || "");
+            if (name == null) return;
+            var grade = prompt("Enter grade:", student.grade == null ? "" : student.grade);
+            if (grade == null) return;
+            var dob = prompt("Enter DOB:", student.dob || "");
+            if (dob == null) return;
+            var address = prompt("Enter address:", student.address || "");
+            if (address == null) return;
+            AppAuth.update("students", id, {
+                name: name.trim(),
+                grade: Number(grade) || grade,
+                dob: dob.trim(),
+                address: address.trim()
+            }).catch(function (error) { AppAuth.showDataError(error); });
+        });
 
+        document.getElementById("exportCsv").addEventListener("click", function () {
+            if (students.length === 0) {
+                alert("No students to export!");
+                return;
+            }
+            Records.downloadCsv("students.csv", ["Roll No", "Name", "Grade", "DOB", "Address"], students.map(function (student) {
+                return [student.rollNo, student.name, student.grade, student.dob, student.address];
+            }));
+        });
+        document.getElementById("gradeFilter").addEventListener("change", function () {
+            if (rebuildingFilter) return;
+            page = 1;
+            showStudents();
+        });
+        document.querySelector("thead").addEventListener("click", function (event) {
+            var header = event.target.closest("[data-sort]");
+            if (!header) return;
+            var column = header.getAttribute("data-sort");
+            if (sortColumn === column) {
+                sortOrder = sortOrder === "ASC" ? "DESC" : "ASC";
+            } else {
+                sortColumn = column;
+                sortOrder = "ASC";
+            }
+            showStudents();
+        });
+        document.getElementById("pages").addEventListener("click", function (event) {
+            var button = event.target.closest("[data-page]");
+            if (!button) return;
+            page = Number(button.getAttribute("data-page"));
+            showStudents();
+        });
 
-    grades.forEach(function(grade) {
-
-        filter.innerHTML +=
-            `<option value="${grade}">
-                Grade ${grade}
-            </option>`;
-
-    });
-
-
-    filter.value = oldValue;
-}
-
-
-// PAGES
-function makePages(total) {
-
-    let pages =
-        document.getElementById("pages");
-
-
-    pages.innerHTML = "";
-
-
-    let totalPages =
-        Math.ceil(total / 20);
-
-
-    for (let i = 1; i <= totalPages; i++) {
-
-        pages.innerHTML += `
-
-            <button onclick="page = ${i}; showStudents()">
-
-                ${i}
-
-            </button>
-
-        `;
-
-    }
-
-}
-
-
-// EXPORT CSV
-function exportCSV() {
-
-    let result =
-        db.exec("SELECT * FROM students");
-
-
-    if (result.length == 0) {
-
-        alert("No students to export!");
-
-        return;
-    }
-
-
-    let csv =
-        "Roll No,Name,Grade,DOB,Address\n";
-
-
-    result[0].values.forEach(function(student) {
-
-        csv +=
-            student.join(",") + "\n";
-
-    });
-
-
-    let file =
-        new Blob([csv], { type: "text/csv" });
-
-
-    let link =
-        document.createElement("a");
-
-
-    link.href =
-        URL.createObjectURL(file);
-
-
-    link.download =
-        "students.csv";
-
-
-    link.click();
-
-}
-
-</script>
-
+        AppAuth.start(function () {
+            AppAuth.watch("students", function (rows, error) {
+                AppAuth.showDataError(error);
+                students = rows;
+                showStudents();
+            });
+        });
+    </script>
 </body>
 </html>

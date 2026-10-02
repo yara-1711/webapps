@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Members</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #fff1e6, #fdf8ef);
+            min-height: 100vh;
+            margin: 0;
+            padding: 28px 16px 48px;
+            color: #4a3428;
+        }
+        .box { max-width: 1100px; margin: auto; width: 100%; }
+        h1 { text-align: center; color: #c2410c; font-size: 38px; margin: 0 0 8px; }
+        .subtitle { text-align: center; color: #8a6a58; margin: 0 0 24px; }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .summary-card {
+            background: white;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 8px 25px rgba(194, 65, 12, 0.1);
+            min-width: 0;
+        }
+        .summary-card span { display: block; color: #8a6a58; font-size: 14px; }
+        .summary-card strong { display: block; margin-top: 6px; font-size: 28px; color: #c2410c; }
+        .panel {
+            background: white;
+            border-radius: 20px;
+            padding: 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 8px 25px rgba(194, 65, 12, 0.1);
+        }
+        .panel h2 { margin: 0 0 6px; color: #c2410c; }
+        .hint { margin: 0 0 14px; color: #8a6a58; }
+        .fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            align-items: end;
+        }
+        .fields .wide { grid-column: 1 / -1; }
+        label { display: block; font-size: 13px; font-weight: bold; color: #9a3412; margin-bottom: 4px; }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #f0d7c8;
+            border-radius: 10px;
+            background: #fffaf7;
+            color: #4a3428;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        textarea { min-height: 72px; resize: vertical; }
+        input:focus, select:focus, textarea:focus { outline: 2px solid #fdba74; border-color: #f97316; }
+        .actions-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        button {
+            padding: 11px 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            color: white;
+            background: #ea580c;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        button.secondary { background: white; color: #9a3412; border: 1px solid #fdba74; }
+        .edit { background: #65a30d; }
+        .delete { background: #e11d48; }
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: end;
+            margin-bottom: 18px;
+        }
+        .filter-row label { margin: 0; }
+        .check { display: flex; align-items: center; gap: 8px; font-weight: bold; color: #9a3412; min-height: 46px; }
+        .check input { width: auto; }
+        .table-box { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #ea580c; color: white; padding: 12px; text-align: left; white-space: nowrap; }
+        th:first-child { border-radius: 12px 0 0 12px; }
+        th:last-child { border-radius: 0 12px 12px 0; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f6e6dc; vertical-align: top; }
+        .pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #ffedd5;
+            color: #9a3412;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .empty { text-align: center; color: #a18474; padding: 22px; }
+        .action-buttons { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+        @media (max-width: 720px) {
+            body { padding: 16px 12px 32px; }
+            h1 { font-size: 28px; }
+            .summary { grid-template-columns: 1fr; }
+            .panel { padding: 16px; }
+            .fields { grid-template-columns: 1fr; }
+            .actions-row button, .filter-row input[type="date"] { width: 100%; }
+            .edit, .delete { width: auto; }
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase.js"></script>
+</head>
+<body>
+    <div id="appRoot" hidden>
+        <div class="box">
+            <div class="top-bar">
+                <a href="index.html" class="btn btn-soft btn-secondary rounded-full px-6 shadow-md">← Back to My Projects 💗</a>
+                <div id="sessionSlot"></div>
+            </div>
+            <h1>🏋️ Gym Members</h1>
+            <p class="subtitle">Log today’s training, the calories you eat, and the diet plan you are following.</p>
+
+            <div class="summary">
+                <div class="summary-card"><span>Exercises this day</span><strong id="exerciseCount">0</strong></div>
+                <div class="summary-card"><span>Calories this day</span><strong id="calorieTotal">0</strong></div>
+                <div class="summary-card"><span>Diet plan meals</span><strong id="dietCount">0</strong></div>
+            </div>
+
+            <div class="panel">
+                <div class="filter-row">
+                    <div>
+                        <label for="logDate">Show logs for</label>
+                        <input id="logDate" type="date">
+                    </div>
+                    <label class="check"><input id="allDays" type="checkbox"> All days</label>
+                </div>
+            </div>
+
+            <section class="panel">
+                <h2>➕ Daily exercise</h2>
+                <p class="hint">Add a set, a run, or any session from the gym.</p>
+                <div class="fields">
+                    <div>
+                        <label for="exerciseDate">Date</label>
+                        <input id="exerciseDate" type="date">
+                    </div>
+                    <div>
+                        <label for="exerciseName">Exercise</label>
+                        <input id="exerciseName" type="text" placeholder="Squat, run, plank">
+                    </div>
+                    <div>
+                        <label for="sets">Sets</label>
+                        <input id="sets" type="number" min="0" placeholder="3">
+                    </div>
+                    <div>
+                        <label for="reps">Reps</label>
+                        <input id="reps" type="number" min="0" placeholder="10">
+                    </div>
+                    <div>
+                        <label for="weight">Weight (kg)</label>
+                        <input id="weight" type="number" min="0" step="0.5" placeholder="40">
+                    </div>
+                    <div>
+                        <label for="minutes">Minutes</label>
+                        <input id="minutes" type="number" min="0" placeholder="20">
+                    </div>
+                    <div class="wide">
+                        <label for="exerciseNotes">Notes</label>
+                        <input id="exerciseNotes" type="text" placeholder="How it felt, rest, or a goal">
+                    </div>
+                </div>
+                <div class="actions-row">
+                    <button id="saveExercise" type="button">Add exercise</button>
+                    <button id="cancelExercise" class="secondary" type="button" hidden>Cancel</button>
+                </div>
+                <div class="table-box" style="margin-top: 16px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Exercise</th>
+                                <th>Sets</th>
+                                <th>Reps</th>
+                                <th>Weight</th>
+                                <th>Minutes</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exerciseList"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>🔥 Calories</h2>
+                <p class="hint">Record what you ate and how many calories it was.</p>
+                <div class="fields">
+                    <div>
+                        <label for="calorieDate">Date</label>
+                        <input id="calorieDate" type="date">
+                    </div>
+                    <div>
+                        <label for="calorieMeal">Meal</label>
+                        <select id="calorieMeal">
+                            <option>Breakfast</option>
+                            <option>Lunch</option>
+                            <option>Dinner</option>
+                            <option>Snack</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="food">Food</label>
+                        <input id="food" type="text" placeholder="Oats and berries">
+                    </div>
+                    <div>
+                        <label for="calories">Calories</label>
+                        <input id="calories" type="number" min="0" placeholder="350">
+                    </div>
+                </div>
+                <div class="actions-row">
+                    <button id="saveCalorie" type="button">Add calories</button>
+                    <button id="cancelCalorie" class="secondary" type="button" hidden>Cancel</button>
+                </div>
+                <div class="table-box" style="margin-top: 16px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Meal</th>
+                                <th>Food</th>
+                                <th>Calories</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="calorieList"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>🥗 Diet plan</h2>
+                <p class="hint">Keep the meals you want to follow, by day or for every day.</p>
+                <div class="fields">
+                    <div>
+                        <label for="planDay">Day</label>
+                        <select id="planDay">
+                            <option>Everyday</option>
+                            <option>Monday</option>
+                            <option>Tuesday</option>
+                            <option>Wednesday</option>
+                            <option>Thursday</option>
+                            <option>Friday</option>
+                            <option>Saturday</option>
+                            <option>Sunday</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="planMeal">Meal</label>
+                        <select id="planMeal">
+                            <option>Breakfast</option>
+                            <option>Lunch</option>
+                            <option>Dinner</option>
+                            <option>Snack</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="planFood">Food</label>
+                        <input id="planFood" type="text" placeholder="Grilled chicken and rice">
+                    </div>
+                    <div>
+                        <label for="planCalories">Calories</label>
+                        <input id="planCalories" type="number" min="0" placeholder="500">
+                    </div>
+                    <div class="wide">
+                        <label for="planNotes">Notes</label>
+                        <input id="planNotes" type="text" placeholder="After training, or a swap you allow">
+                    </div>
+                </div>
+                <div class="actions-row">
+                    <button id="savePlan" type="button">Add to diet plan</button>
+                    <button id="cancelPlan" class="secondary" type="button" hidden>Cancel</button>
+                </div>
+                <div class="table-box" style="margin-top: 16px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Meal</th>
+                                <th>Food</th>
+                                <th>Calories</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="planList"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        var exercises = [];
+        var calorieRows = [];
+        var dietRows = [];
+        var loaded = { exercises: false, calories: false, diet: false };
+        var editing = { exercise: "", calorie: "", diet: "" };
+        var dayRank = { Everyday: 0, Monday: 1, Tuesday: 2, Wednesday: 3, Thursday: 4, Friday: 5, Saturday: 6, Sunday: 7 };
+        var mealRank = { Breakfast: 0, Lunch: 1, Dinner: 2, Snack: 3 };
+
+        function todayDate() {
+            var today = new Date();
+            var month = String(today.getMonth() + 1).padStart(2, "0");
+            var day = String(today.getDate()).padStart(2, "0");
+            return today.getFullYear() + "-" + month + "-" + day;
+        }
+
+        function value(id) {
+            return document.getElementById(id).value.trim();
+        }
+
+        function shownDate() {
+            if (document.getElementById("allDays").checked) return "";
+            return document.getElementById("logDate").value || todayDate();
+        }
+
+        function blank(text) {
+            var clean = AppAuth.escape(text);
+            return clean === "" ? "—" : clean;
+        }
+
+        function buttons(kind, id) {
+            return '<span class="action-buttons">' +
+                '<button class="edit" type="button" data-kind="' + kind + '" data-action="edit" data-id="' + AppAuth.escape(id) + '">Edit</button>' +
+                '<button class="delete" type="button" data-kind="' + kind + '" data-action="delete" data-id="' + AppAuth.escape(id) + '">Delete</button>' +
+                '</span>';
+        }
+
+        function emptyRow(columns, message) {
+            return '<tr><td class="empty" colspan="' + columns + '">' + message + '</td></tr>';
+        }
+
+        function renderStats() {
+            var date = document.getElementById("logDate").value || todayDate();
+            var dayExercises = exercises.filter(function (row) { return row.date === date; });
+            var dayCalories = calorieRows.filter(function (row) { return row.date === date; });
+            var total = dayCalories.reduce(function (sum, row) { return sum + (Number(row.calories) || 0); }, 0);
+            document.getElementById("exerciseCount").textContent = String(dayExercises.length);
+            document.getElementById("calorieTotal").textContent = String(total);
+            document.getElementById("dietCount").textContent = String(dietRows.length);
+        }
+
+        function renderExercises() {
+            var date = shownDate();
+            var rows = exercises.filter(function (row) { return !date || row.date === date; });
+            rows.sort(function (a, b) {
+                return String(b.date || "").localeCompare(String(a.date || "")) || String(a.name || "").localeCompare(String(b.name || ""));
+            });
+            var list = document.getElementById("exerciseList");
+            if (!loaded.exercises) {
+                list.innerHTML = emptyRow(8, "Loading your exercises…");
+                return;
+            }
+            if (rows.length === 0) {
+                list.innerHTML = emptyRow(8, "No exercises for this day yet.");
+                return;
+            }
+            list.innerHTML = rows.map(function (row) {
+                return "<tr>" +
+                    '<td data-label="Date"><span>' + blank(row.date) + "</span></td>" +
+                    '<td data-label="Exercise"><strong>' + blank(row.name) + "</strong></td>" +
+                    '<td data-label="Sets"><span>' + blank(row.sets) + "</span></td>" +
+                    '<td data-label="Reps"><span>' + blank(row.reps) + "</span></td>" +
+                    '<td data-label="Weight"><span>' + blank(row.weight) + "</span></td>" +
+                    '<td data-label="Minutes"><span>' + blank(row.minutes) + "</span></td>" +
+                    '<td data-label="Notes"><span>' + blank(row.notes) + "</span></td>" +
+                    '<td class="actions" data-label="Actions">' + buttons("exercise", row.id) + "</td>" +
+                    "</tr>";
+            }).join("");
+        }
+
+        function renderCalories() {
+            var date = shownDate();
+            var rows = calorieRows.filter(function (row) { return !date || row.date === date; });
+            rows.sort(function (a, b) {
+                return String(b.date || "").localeCompare(String(a.date || "")) || (mealRank[a.meal] || 0) - (mealRank[b.meal] || 0);
+            });
+            var list = document.getElementById("calorieList");
+            if (!loaded.calories) {
+                list.innerHTML = emptyRow(5, "Loading your calories…");
+                return;
+            }
+            if (rows.length === 0) {
+                list.innerHTML = emptyRow(5, "No calories for this day yet.");
+                return;
+            }
+            list.innerHTML = rows.map(function (row) {
+                return "<tr>" +
+                    '<td data-label="Date"><span>' + blank(row.date) + "</span></td>" +
+                    '<td data-label="Meal"><span class="pill">' + blank(row.meal) + "</span></td>" +
+                    '<td data-label="Food"><span>' + blank(row.food) + "</span></td>" +
+                    '<td data-label="Calories"><span>' + blank(row.calories) + "</span></td>" +
+                    '<td class="actions" data-label="Actions">' + buttons("calorie", row.id) + "</td>" +
+                    "</tr>";
+            }).join("");
+        }
+
+        function renderDiet() {
+            var rows = dietRows.slice().sort(function (a, b) {
+                return (dayRank[a.day] || 0) - (dayRank[b.day] || 0) || (mealRank[a.meal] || 0) - (mealRank[b.meal] || 0);
+            });
+            var list = document.getElementById("planList");
+            if (!loaded.diet) {
+                list.innerHTML = emptyRow(6, "Loading your diet plan…");
+                return;
+            }
+            if (rows.length === 0) {
+                list.innerHTML = emptyRow(6, "Your diet plan is empty.");
+                return;
+            }
+            list.innerHTML = rows.map(function (row) {
+                return "<tr>" +
+                    '<td data-label="Day"><span class="pill">' + blank(row.day) + "</span></td>" +
+                    '<td data-label="Meal"><span>' + blank(row.meal) + "</span></td>" +
+                    '<td data-label="Food"><span>' + blank(row.food) + "</span></td>" +
+                    '<td data-label="Calories"><span>' + blank(row.calories) + "</span></td>" +
+                    '<td data-label="Notes"><span>' + blank(row.notes) + "</span></td>" +
+                    '<td class="actions" data-label="Actions">' + buttons("diet", row.id) + "</td>" +
+                    "</tr>";
+            }).join("");
+        }
+
+        function render() {
+            renderStats();
+            renderExercises();
+            renderCalories();
+            renderDiet();
+        }
+
+        function setEditing(kind, id, saveId, cancelId, label) {
+            editing[kind] = id || "";
+            document.getElementById(saveId).textContent = id ? "Save changes" : label;
+            document.getElementById(cancelId).hidden = !id;
+        }
+
+        function clearExercise() {
+            document.getElementById("exerciseName").value = "";
+            document.getElementById("sets").value = "";
+            document.getElementById("reps").value = "";
+            document.getElementById("weight").value = "";
+            document.getElementById("minutes").value = "";
+            document.getElementById("exerciseNotes").value = "";
+            document.getElementById("exerciseDate").value = document.getElementById("logDate").value || todayDate();
+            setEditing("exercise", "", "saveExercise", "cancelExercise", "Add exercise");
+        }
+
+        function clearCalorie() {
+            document.getElementById("food").value = "";
+            document.getElementById("calories").value = "";
+            document.getElementById("calorieMeal").value = "Breakfast";
+            document.getElementById("calorieDate").value = document.getElementById("logDate").value || todayDate();
+            setEditing("calorie", "", "saveCalorie", "cancelCalorie", "Add calories");
+        }
+
+        function clearPlan() {
+            document.getElementById("planFood").value = "";
+            document.getElementById("planCalories").value = "";
+            document.getElementById("planNotes").value = "";
+            document.getElementById("planDay").value = "Everyday";
+            document.getElementById("planMeal").value = "Breakfast";
+            setEditing("diet", "", "savePlan", "cancelPlan", "Add to diet plan");
+        }
+
+        function saveExercise() {
+            var name = value("exerciseName");
+            if (!name) {
+                alert("Please enter the exercise.");
+                return;
+            }
+            var data = {
+                date: value("exerciseDate") || todayDate(),
+                name: name,
+                sets: value("sets"),
+                reps: value("reps"),
+                weight: value("weight"),
+                minutes: value("minutes"),
+                notes: value("exerciseNotes")
+            };
+            var request = editing.exercise
+                ? AppAuth.update("gymExercises", editing.exercise, data)
+                : AppAuth.add("gymExercises", data);
+            request.then(clearExercise).catch(function (error) { AppAuth.showDataError(error); });
+        }
+
+        function saveCalorie() {
+            var food = value("food");
+            var calories = value("calories");
+            if (!food || calories === "") {
+                alert("Please enter the food and calories.");
+                return;
+            }
+            if (Number(calories) < 0) {
+                alert("Calories cannot be negative.");
+                return;
+            }
+            var data = {
+                date: value("calorieDate") || todayDate(),
+                meal: document.getElementById("calorieMeal").value,
+                food: food,
+                calories: Number(calories)
+            };
+            var request = editing.calorie
+                ? AppAuth.update("gymCalories", editing.calorie, data)
+                : AppAuth.add("gymCalories", data);
+            request.then(clearCalorie).catch(function (error) { AppAuth.showDataError(error); });
+        }
+
+        function savePlan() {
+            var food = value("planFood");
+            if (!food) {
+                alert("Please enter the food for this meal.");
+                return;
+            }
+            var calories = value("planCalories");
+            if (calories !== "" && Number(calories) < 0) {
+                alert("Calories cannot be negative.");
+                return;
+            }
+            var data = {
+                day: document.getElementById("planDay").value,
+                meal: document.getElementById("planMeal").value,
+                food: food,
+                calories: calories === "" ? "" : Number(calories),
+                notes: value("planNotes")
+            };
+            var request = editing.diet
+                ? AppAuth.update("gymDiet", editing.diet, data)
+                : AppAuth.add("gymDiet", data);
+            request.then(clearPlan).catch(function (error) { AppAuth.showDataError(error); });
+        }
+
+        function editRow(kind, id) {
+            if (kind === "exercise") {
+                var exercise = exercises.find(function (row) { return row.id === id; });
+                if (!exercise) return;
+                document.getElementById("exerciseDate").value = exercise.date || todayDate();
+                document.getElementById("exerciseName").value = exercise.name || "";
+                document.getElementById("sets").value = exercise.sets || "";
+                document.getElementById("reps").value = exercise.reps || "";
+                document.getElementById("weight").value = exercise.weight || "";
+                document.getElementById("minutes").value = exercise.minutes || "";
+                document.getElementById("exerciseNotes").value = exercise.notes || "";
+                setEditing("exercise", id, "saveExercise", "cancelExercise", "Add exercise");
+                document.getElementById("exerciseName").focus();
+            }
+            if (kind === "calorie") {
+                var calorie = calorieRows.find(function (row) { return row.id === id; });
+                if (!calorie) return;
+                document.getElementById("calorieDate").value = calorie.date || todayDate();
+                document.getElementById("calorieMeal").value = calorie.meal || "Breakfast";
+                document.getElementById("food").value = calorie.food || "";
+                document.getElementById("calories").value = calorie.calories == null ? "" : calorie.calories;
+                setEditing("calorie", id, "saveCalorie", "cancelCalorie", "Add calories");
+                document.getElementById("food").focus();
+            }
+            if (kind === "diet") {
+                var meal = dietRows.find(function (row) { return row.id === id; });
+                if (!meal) return;
+                document.getElementById("planDay").value = meal.day || "Everyday";
+                document.getElementById("planMeal").value = meal.meal || "Breakfast";
+                document.getElementById("planFood").value = meal.food || "";
+                document.getElementById("planCalories").value = meal.calories == null ? "" : meal.calories;
+                document.getElementById("planNotes").value = meal.notes || "";
+                setEditing("diet", id, "savePlan", "cancelPlan", "Add to diet plan");
+                document.getElementById("planFood").focus();
+            }
+        }
+
+        function deleteRow(kind, id) {
+            var names = { exercise: ["gymExercises", "Delete this exercise?"], calorie: ["gymCalories", "Delete this calorie entry?"], diet: ["gymDiet", "Delete this diet meal?"] };
+            var pair = names[kind];
+            if (!pair || !confirm(pair[1])) return;
+            AppAuth.remove(pair[0], id).then(function () {
+                if (editing[kind] === id) {
+                    if (kind === "exercise") clearExercise();
+                    if (kind === "calorie") clearCalorie();
+                    if (kind === "diet") clearPlan();
+                }
+            }).catch(function (error) { AppAuth.showDataError(error); });
+        }
+
+        document.getElementById("logDate").value = todayDate();
+        document.getElementById("exerciseDate").value = todayDate();
+        document.getElementById("calorieDate").value = todayDate();
+        document.getElementById("logDate").addEventListener("change", function () {
+            if (!document.getElementById("allDays").checked) {
+                document.getElementById("exerciseDate").value = document.getElementById("logDate").value;
+                document.getElementById("calorieDate").value = document.getElementById("logDate").value;
+            }
+            render();
+        });
+        document.getElementById("allDays").addEventListener("change", render);
+        document.getElementById("saveExercise").addEventListener("click", saveExercise);
+        document.getElementById("saveCalorie").addEventListener("click", saveCalorie);
+        document.getElementById("savePlan").addEventListener("click", savePlan);
+        document.getElementById("cancelExercise").addEventListener("click", clearExercise);
+        document.getElementById("cancelCalorie").addEventListener("click", clearCalorie);
+        document.getElementById("cancelPlan").addEventListener("click", clearPlan);
+        document.getElementById("appRoot").addEventListener("click", function (event) {
+            var button = event.target.closest("[data-action]");
+            if (!button) return;
+            var kind = button.getAttribute("data-kind");
+            var id = button.getAttribute("data-id");
+            if (button.getAttribute("data-action") === "edit") editRow(kind, id);
+            if (button.getAttribute("data-action") === "delete") deleteRow(kind, id);
+        });
+
+        AppAuth.start(function () {
+            var today = todayDate();
+            document.getElementById("logDate").value = today;
+            document.getElementById("exerciseDate").value = today;
+            document.getElementById("calorieDate").value = today;
+            AppAuth.watch("gymExercises", function (rows, error) {
+                loaded.exercises = true;
+                if (error) AppAuth.showDataError(error);
+                exercises = rows;
+                render();
+            });
+            AppAuth.watch("gymCalories", function (rows, error) {
+                loaded.calories = true;
+                if (error) AppAuth.showDataError(error);
+                calorieRows = rows;
+                render();
+            });
+            AppAuth.watch("gymDiet", function (rows, error) {
+                loaded.diet = true;
+                if (error) AppAuth.showDataError(error);
+                dietRows = rows;
+                render();
+            });
+        });
+    </script>
+</body>
+</html>
