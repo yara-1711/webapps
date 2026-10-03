@@ -123,6 +123,16 @@
     <script src="js/firebase.js"></script>
 </head>
 <body>
+    <div id="loginScreen" class="login-screen" hidden>
+        <div class="login-card">
+            <p class="login-kicker">Google account</p>
+            <h1>Sign in with Google</h1>
+            <p>The gym log stays hidden until you sign in. Exercises, calories, and the diet plan are saved in Cloud Firestore.</p>
+            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
+            <p id="authError" class="auth-error" hidden></p>
+            <a class="login-back" href="index.html">← All projects</a>
+        </div>
+    </div>
     <div id="appRoot" hidden>
         <div class="box">
             <div class="top-bar">
@@ -313,6 +323,12 @@
     </div>
 
     <script>
+        function gymCollection(name) {
+            var user = firebase.auth().currentUser;
+            if (!user) throw new Error("Sign in with Google before saving gym records.");
+            return firebase.firestore().collection("users").doc(user.uid).collection(name);
+        }
+
         var exercises = [];
         var calorieRows = [];
         var dietRows = [];
@@ -500,8 +516,8 @@
                 notes: value("exerciseNotes")
             };
             var request = editing.exercise
-                ? AppAuth.update("gymExercises", editing.exercise, data)
-                : AppAuth.add("gymExercises", data);
+                ? gymCollection("gymExercises").doc(editing.exercise).update(data)
+                : gymCollection("gymExercises").add(Object.assign({ createdAt: Date.now() }, data));
             request.then(clearExercise).catch(function (error) { AppAuth.showDataError(error); });
         }
 
@@ -523,8 +539,8 @@
                 calories: Number(calories)
             };
             var request = editing.calorie
-                ? AppAuth.update("gymCalories", editing.calorie, data)
-                : AppAuth.add("gymCalories", data);
+                ? gymCollection("gymCalories").doc(editing.calorie).update(data)
+                : gymCollection("gymCalories").add(Object.assign({ createdAt: Date.now() }, data));
             request.then(clearCalorie).catch(function (error) { AppAuth.showDataError(error); });
         }
 
@@ -547,8 +563,8 @@
                 notes: value("planNotes")
             };
             var request = editing.diet
-                ? AppAuth.update("gymDiet", editing.diet, data)
-                : AppAuth.add("gymDiet", data);
+                ? gymCollection("gymDiet").doc(editing.diet).update(data)
+                : gymCollection("gymDiet").add(Object.assign({ createdAt: Date.now() }, data));
             request.then(clearPlan).catch(function (error) { AppAuth.showDataError(error); });
         }
 
@@ -593,7 +609,7 @@
             var names = { exercise: ["gymExercises", "Delete this exercise?"], calorie: ["gymCalories", "Delete this calorie entry?"], diet: ["gymDiet", "Delete this diet meal?"] };
             var pair = names[kind];
             if (!pair || !confirm(pair[1])) return;
-            AppAuth.remove(pair[0], id).then(function () {
+            gymCollection(pair[0]).doc(id).delete().then(function () {
                 if (editing[kind] === id) {
                     if (kind === "exercise") clearExercise();
                     if (kind === "calorie") clearCalorie();
@@ -633,24 +649,24 @@
             document.getElementById("logDate").value = today;
             document.getElementById("exerciseDate").value = today;
             document.getElementById("calorieDate").value = today;
-            AppAuth.watch("gymExercises", function (rows, error) {
+            gymCollection("gymExercises").onSnapshot(function (snap) {
                 loaded.exercises = true;
-                if (error) AppAuth.showDataError(error);
-                exercises = rows;
+                AppAuth.showDataError(null);
+                exercises = snap.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); });
                 render();
-            });
-            AppAuth.watch("gymCalories", function (rows, error) {
+            }, function (error) { loaded.exercises = true; AppAuth.showDataError(error); });
+            gymCollection("gymCalories").onSnapshot(function (snap) {
                 loaded.calories = true;
-                if (error) AppAuth.showDataError(error);
-                calorieRows = rows;
+                AppAuth.showDataError(null);
+                calorieRows = snap.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); });
                 render();
-            });
-            AppAuth.watch("gymDiet", function (rows, error) {
+            }, function (error) { loaded.calories = true; AppAuth.showDataError(error); });
+            gymCollection("gymDiet").onSnapshot(function (snap) {
                 loaded.diet = true;
-                if (error) AppAuth.showDataError(error);
-                dietRows = rows;
+                AppAuth.showDataError(null);
+                dietRows = snap.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); });
                 render();
-            });
+            }, function (error) { loaded.diet = true; AppAuth.showDataError(error); });
         });
     </script>
 </body>

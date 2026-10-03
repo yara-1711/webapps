@@ -99,6 +99,16 @@
     <script src="js/records.js"></script>
 </head>
 <body>
+    <div id="loginScreen" class="login-screen" hidden>
+        <div class="login-card">
+            <p class="login-kicker">Google account</p>
+            <h1>Sign in with Google</h1>
+            <p>This tracker stays hidden until you sign in. Screen time is saved in Cloud Firestore for your Google account.</p>
+            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
+            <p id="authError" class="auth-error" hidden></p>
+            <a class="login-back" href="index.html">← All projects</a>
+        </div>
+    </div>
     <div id="appRoot" hidden>
         <div class="box">
             <div class="top-bar">
@@ -155,6 +165,12 @@
         </div>
     </div>
     <script>
+        function screenTimeCollection() {
+            var user = firebase.auth().currentUser;
+            if (!user) throw new Error("Sign in with Google before saving screen time.");
+            return firebase.firestore().collection("users").doc(user.uid).collection("screentime");
+        }
+
         var items = [];
         var currentPage = 1;
         var sortColumn = "usedOn";
@@ -228,11 +244,12 @@
                 alert("Minutes must be at least 1.");
                 return;
             }
-            AppAuth.add("screentime", {
+            screenTimeCollection().add({
                 name: name,
                 minutes: Number(minutes),
                 usedOn: usedOn,
-                category: document.getElementById("category").value
+                category: document.getElementById("category").value,
+                createdAt: Date.now()
             }).then(function () {
                 document.getElementById("name").value = "";
                 document.getElementById("minutes").value = "";
@@ -249,7 +266,7 @@
             if (!item) return;
             if (button.getAttribute("data-action") === "delete") {
                 if (confirm("Delete this screen time?")) {
-                    AppAuth.remove("screentime", id).catch(function (error) { AppAuth.showDataError(error); });
+                    screenTimeCollection().doc(id).delete().catch(function (error) { AppAuth.showDataError(error); });
                 }
                 return;
             }
@@ -261,7 +278,7 @@
             if (usedOn == null) return;
             var category = prompt("Category (Social / Entertainment / Study / Work / Other):", item.category || "Other");
             if (category == null) return;
-            AppAuth.update("screentime", id, {
+            screenTimeCollection().doc(id).update({
                 name: name.trim(),
                 minutes: Number(minutes) || 0,
                 usedOn: usedOn.trim(),
@@ -304,10 +321,15 @@
 
         AppAuth.start(function () {
             document.getElementById("usedOn").value = todayDate();
-            AppAuth.watch("screentime", function (rows, error) {
+            screenTimeCollection().onSnapshot(function (snap) {
+                loaded = true;
+                AppAuth.showDataError(null);
+                items = snap.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); });
+                showScreenTime();
+            }, function (error) {
                 loaded = true;
                 AppAuth.showDataError(error);
-                items = rows;
+                items = [];
                 showScreenTime();
             });
         });

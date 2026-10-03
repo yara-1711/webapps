@@ -72,11 +72,119 @@
     }
 
     function userCollection(name) {
-        var user = auth && auth.currentUser;
+        var user = firebase.auth().currentUser;
         if (!user) {
-            throw new Error("Sign in required");
+            throw new Error("Sign in with Google before using Firestore.");
         }
-        return db.collection("users").doc(user.uid).collection(name);
+        return firebase.firestore().collection("users").doc(user.uid).collection(name);
+    }
+
+    function legacyRows(key) {
+        try {
+            var raw = localStorage.getItem(key);
+            if (!raw) {
+                return [];
+            }
+            var parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function removeLegacyKey(key) {
+        try {
+            localStorage.removeItem(key);
+        } catch (error) {
+            return;
+        }
+    }
+
+    function writeRows(collectionName, rows) {
+        if (!rows.length) {
+            return Promise.resolve();
+        }
+        var col = userCollection(collectionName);
+        var batch = firebase.firestore().batch();
+        rows.forEach(function (row) {
+            batch.set(col.doc(), clean(Object.assign({}, row, { createdAt: Date.now() })));
+        });
+        return batch.commit();
+    }
+
+    function loadSqlJs() {
+        if (typeof initSqlJs === "function") {
+            return Promise.resolve();
+        }
+        return new Promise(function (resolve, reject) {
+            var script = document.createElement("script");
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js";
+            script.onload = function () { resolve(); };
+            script.onerror = function () { reject(new Error("Could not read the old browser database.")); };
+            document.head.appendChild(script);
+        });
+    }
+
+    function migrateSqlDump(storageKey, table, fields, collectionName) {
+        var saved = null;
+        try {
+            saved = localStorage.getItem(storageKey);
+        } catch (error) {
+            return Promise.resolve();
+        }
+        if (!saved) {
+            return Promise.resolve();
+        }
+        return loadSqlJs().then(function () {
+            return initSqlJs({
+            locateFile: function (file) {
+                return "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/" + file;
+            }
+            });
+        }).then(function (SQL) {
+            var binary = atob(saved);
+            var data = new Uint8Array(binary.length);
+            var i;
+            for (i = 0; i < binary.length; i++) {
+                data[i] = binary.charCodeAt(i);
+            }
+            var database = new SQL.Database(data);
+            var result = database.exec("SELECT " + fields.join(", ") + " FROM " + table);
+            var rows = [];
+            if (result.length > 0) {
+                result[0].values.forEach(function (value) {
+                    var row = {};
+                    fields.forEach(function (field, index) {
+                        row[field] = value[index];
+                    });
+                    if (row.rating != null) row.rating = Number(row.rating) || 0;
+                    if (row.minutes != null) row.minutes = Number(row.minutes) || 0;
+                    rows.push(row);
+                });
+            }
+            return writeRows(collectionName, rows).then(function () {
+                removeLegacyKey(storageKey);
+            });
+        }).catch(function (error) {
+            showDataError(error);
+            return Promise.resolve();
+        });
+    }
+
+    function adoptLegacyStorage() {
+        var employees = legacyRows("employees");
+        var employeeWrite = employees.length
+            ? writeRows("employees", employees).then(function () { removeLegacyKey("employees"); })
+            : Promise.resolve().then(function () { removeLegacyKey("employees"); });
+        return employeeWrite.then(function () {
+            return migrateSqlDump("myBookTracker", "books", ["title", "author", "status", "rating"], "books");
+        }).then(function () {
+            return migrateSqlDump("myMedicineTracker", "medicines", ["name", "dosage", "schedule", "status"], "medicines");
+        }).then(function () {
+            return migrateSqlDump("myScreenTimeTracker", "screentime", ["name", "minutes", "usedOn", "category"], "screentime");
+        }).catch(function (error) {
+            showDataError(error);
+        });
     }
 
     function showAuthError(message) {
@@ -120,7 +228,9 @@
         renderSession(user);
         if (!appStarted && typeof readyCallback === "function") {
             appStarted = true;
-            readyCallback(user);
+            adoptLegacyStorage().then(function () {
+                readyCallback(user);
+            });
         }
     }
 
@@ -136,7 +246,7 @@
         slot.innerHTML =
             '<div class="session">' +
             photo +
-            '<span class="session-name">' + escapeHtml(name) + "</span>" +
+            '<span class="session-name">Google · ' + escapeHtml(name) + "</span>" +
             '<button type="button" class="logout-button" id="logoutButton">Log out</button>' +
             "</div>";
         document.getElementById("logoutButton").addEventListener("click", function () {
@@ -155,6 +265,7 @@
             document.body.prepend(checking);
         }
 
+        bindGoogleButton();
         if (document.getElementById("loginScreen")) {
             return;
         }
@@ -184,7 +295,16 @@
             (onIndex ? "" : '<a class="login-back" href="index.html">← All projects</a>') +
             "</div>";
         document.body.prepend(screen);
-        document.getElementById("googleSignInButton").addEventListener("click", signInWithGoogle);
+        bindGoogleButton();
+    }
+
+    function bindGoogleButton() {
+        var button = document.getElementById("googleSignInButton");
+        if (!button || button.getAttribute("data-bound") === "1") {
+            return;
+        }
+        button.setAttribute("data-bound", "1");
+        button.addEventListener("click", signInWithGoogle);
     }
 
     function signInWithGoogle() {

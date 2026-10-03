@@ -97,6 +97,16 @@
     <script src="js/records.js"></script>
 </head>
 <body>
+    <div id="loginScreen" class="login-screen" hidden>
+        <div class="login-card">
+            <p class="login-kicker">Google account</p>
+            <h1>Sign in with Google</h1>
+            <p>This tracker stays hidden until you sign in. Medicines are saved in Cloud Firestore for your Google account.</p>
+            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
+            <p id="authError" class="auth-error" hidden></p>
+            <a class="login-back" href="index.html">← All projects</a>
+        </div>
+    </div>
     <div id="appRoot" hidden>
         <div class="box">
             <div class="top-bar">
@@ -155,6 +165,12 @@
         </div>
     </div>
     <script>
+        function medicinesCollection() {
+            var user = firebase.auth().currentUser;
+            if (!user) throw new Error("Sign in with Google before saving medicines.");
+            return firebase.firestore().collection("users").doc(user.uid).collection("medicines");
+        }
+
         var medicines = [];
         var currentPage = 1;
         var sortColumn = "name";
@@ -210,11 +226,12 @@
                 alert("Please enter the medicine name and dosage.");
                 return;
             }
-            AppAuth.add("medicines", {
+            medicinesCollection().add({
                 name: name,
                 dosage: dosage,
                 schedule: document.getElementById("schedule").value,
-                status: document.getElementById("status").value
+                status: document.getElementById("status").value,
+                createdAt: Date.now()
             }).then(function () {
                 document.getElementById("name").value = "";
                 document.getElementById("dosage").value = "";
@@ -230,7 +247,7 @@
             if (!item) return;
             if (button.getAttribute("data-action") === "delete") {
                 if (confirm("Delete this medicine?")) {
-                    AppAuth.remove("medicines", id).catch(function (error) { AppAuth.showDataError(error); });
+                    medicinesCollection().doc(id).delete().catch(function (error) { AppAuth.showDataError(error); });
                 }
                 return;
             }
@@ -242,7 +259,7 @@
             if (schedule == null) return;
             var status = prompt("Status (Active / Paused / Finished):", item.status || "");
             if (status == null) return;
-            AppAuth.update("medicines", id, {
+            medicinesCollection().doc(id).update({
                 name: name.trim(),
                 dosage: dosage.trim(),
                 schedule: schedule.trim(),
@@ -280,10 +297,15 @@
         });
 
         AppAuth.start(function () {
-            AppAuth.watch("medicines", function (rows, error) {
+            medicinesCollection().onSnapshot(function (snap) {
+                loaded = true;
+                AppAuth.showDataError(null);
+                medicines = snap.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); });
+                showMedicines();
+            }, function (error) {
                 loaded = true;
                 AppAuth.showDataError(error);
-                medicines = rows;
+                medicines = [];
                 showMedicines();
             });
         });
