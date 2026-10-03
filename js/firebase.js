@@ -1,18 +1,21 @@
 /*
  * Shared Firebase setup for every app.
- * Auth and Firestore use the same project config that was already
- * on the employee list (rhea-apps-1711).
+ * Google sign-in and Cloud Firestore both use techcoderlabz-project.
+ * That is the project where the Firestore API is enabled. rhea-apps-1711
+ * has Auth only, so writes there never leave the browser.
  */
 (function () {
     var firebaseConfig = {
-        apiKey: "AIzaSyDeuGSD-woWghVhKkQKqjr1meBtaKwrB8I",
-        authDomain: "rhea-apps-1711.firebaseapp.com",
-        projectId: "rhea-apps-1711",
-        storageBucket: "rhea-apps-1711.firebasestorage.app",
-        messagingSenderId: "752009231762",
-        appId: "1:752009231762:web:a701fe1c11fa029fd6154b",
-        measurementId: "G-GPEK776WM8"
+        apiKey: "AIzaSyCectC2gNXIYpL8Rt4QeOsQuW5oEF2Tf4k",
+        authDomain: "techcoderlabz-project.firebaseapp.com",
+        projectId: "techcoderlabz-project",
+        storageBucket: "techcoderlabz-project.firebasestorage.app",
+        messagingSenderId: "750937809509",
+        appId: "1:750937809509:web:b3561297b5d8ea282b5c8c",
+        measurementId: "G-J13K9JQ058"
     };
+
+    var legacyHold = captureAndClearBrowserCopies();
 
     var auth = null;
     var db = null;
@@ -63,7 +66,7 @@
             return "";
         }
         if (error.code === "permission-denied") {
-            return "You are signed in, but Firestore refused this request. Create a Firestore database for rhea-apps-1711 and publish firestore.rules so each person can only read and write their own data.";
+            return "You are signed in, but Firestore refused this request. In techcoderlabz-project, publish rules that allow a signed-in user to read and write only users/{their uid}.";
         }
         if (error.code === "unavailable") {
             return "Firestore is unavailable right now. Check your connection and try again.";
@@ -79,25 +82,41 @@
         return firebase.firestore().collection("users").doc(user.uid).collection(name);
     }
 
-    function legacyRows(key) {
+    function captureAndClearBrowserCopies() {
+        var hold = { employees: [], sql: {} };
+        var appKeys = ["employees", "myBookTracker", "myMedicineTracker", "myScreenTimeTracker"];
+        var i;
         try {
-            var raw = localStorage.getItem(key);
-            if (!raw) {
-                return [];
+            var employeesRaw = localStorage.getItem("employees");
+            if (employeesRaw) {
+                var parsed = JSON.parse(employeesRaw);
+                if (Array.isArray(parsed)) hold.employees = parsed;
             }
-            var parsed = JSON.parse(raw);
-            return Array.isArray(parsed) ? parsed : [];
         } catch (error) {
-            return [];
+            hold.employees = [];
         }
-    }
-
-    function removeLegacyKey(key) {
+        appKeys.forEach(function (key) {
+            try {
+                if (key !== "employees") {
+                    var saved = localStorage.getItem(key);
+                    if (saved) hold.sql[key] = saved;
+                }
+                localStorage.removeItem(key);
+            } catch (error) {
+                return;
+            }
+        });
+        var doomed = [];
         try {
-            localStorage.removeItem(key);
+            for (i = 0; i < localStorage.length; i++) {
+                var name = localStorage.key(i);
+                if (name && name.indexOf("firestore") !== -1) doomed.push(name);
+            }
+            doomed.forEach(function (name) { localStorage.removeItem(name); });
         } catch (error) {
-            return;
+            return hold;
         }
+        return hold;
     }
 
     function writeRows(collectionName, rows) {
@@ -126,12 +145,7 @@
     }
 
     function migrateSqlDump(storageKey, table, fields, collectionName) {
-        var saved = null;
-        try {
-            saved = localStorage.getItem(storageKey);
-        } catch (error) {
-            return Promise.resolve();
-        }
+        var saved = legacyHold.sql[storageKey];
         if (!saved) {
             return Promise.resolve();
         }
@@ -162,9 +176,7 @@
                     rows.push(row);
                 });
             }
-            return writeRows(collectionName, rows).then(function () {
-                removeLegacyKey(storageKey);
-            });
+            return writeRows(collectionName, rows);
         }).catch(function (error) {
             showDataError(error);
             return Promise.resolve();
@@ -172,10 +184,9 @@
     }
 
     function adoptLegacyStorage() {
-        var employees = legacyRows("employees");
-        var employeeWrite = employees.length
-            ? writeRows("employees", employees).then(function () { removeLegacyKey("employees"); })
-            : Promise.resolve().then(function () { removeLegacyKey("employees"); });
+        var employees = legacyHold.employees || [];
+        legacyHold.employees = [];
+        var employeeWrite = employees.length ? writeRows("employees", employees) : Promise.resolve();
         return employeeWrite.then(function () {
             return migrateSqlDump("myBookTracker", "books", ["title", "author", "status", "rating"], "books");
         }).then(function () {
