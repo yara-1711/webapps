@@ -15,9 +15,6 @@
         measurementId: "G-J13K9JQ058"
     };
 
-    var googleClientId = "750937809509-cdin14jif4vbcmi9ai9v0e6d86ai4b1i.apps.googleusercontent.com";
-    var googleButtonsReady = false;
-
     var legacyHold = captureAndClearBrowserCopies();
 
     var auth = null;
@@ -406,93 +403,6 @@
         });
     }
 
-    function onGoogleCredential(response) {
-        if (!auth || !response || !response.credential) {
-            showAuthError("Google did not finish sign-in. Try the button again.");
-            return;
-        }
-        showAuthError("");
-        var credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
-        auth.signInWithCredential(credential).catch(function (error) {
-            showAuthError(friendlyAuthError(error));
-        });
-    }
-
-    function loadGoogleScript() {
-        if (window.google && google.accounts && google.accounts.id) {
-            return Promise.resolve();
-        }
-        return new Promise(function (resolve, reject) {
-            var script = document.createElement("script");
-            script.src = "https://accounts.google.com/gsi/client";
-            script.async = true;
-            script.onload = function () { resolve(); };
-            script.onerror = function () { reject(new Error("Google sign-in failed to load.")); };
-            document.head.appendChild(script);
-        });
-    }
-
-    function ensureGoogleSlots() {
-        googleButtons().forEach(function (button) {
-            var previous = button.previousElementSibling;
-            if (previous && previous.classList.contains("google-slot")) {
-                return;
-            }
-            var slot = document.createElement("div");
-            slot.className = "google-slot";
-            var wide = button.closest && button.closest(".login-card, .intro-panel");
-            var width = wide ? 300 : (window.innerWidth < 560 ? 200 : 230);
-            slot.setAttribute("data-google-width", String(width));
-            button.parentNode.insertBefore(slot, button);
-        });
-    }
-
-    function mountGoogleButtons() {
-        if (googleButtonsReady || !auth) {
-            return;
-        }
-        ensureGoogleSlots();
-        loadGoogleScript().then(function () {
-            google.accounts.id.initialize({
-                client_id: googleClientId,
-                callback: onGoogleCredential,
-                auto_select: false,
-                itp_support: true,
-                use_fedcm_for_button: true,
-                context: "signin"
-            });
-            var placed = 0;
-            document.querySelectorAll(".google-slot").forEach(function (slot) {
-                if (slot.getAttribute("data-rendered") === "1") {
-                    return;
-                }
-                var width = Number(slot.getAttribute("data-google-width")) || 240;
-                google.accounts.id.renderButton(slot, {
-                    type: "standard",
-                    theme: "outline",
-                    size: "large",
-                    text: "signin_with",
-                    shape: "pill",
-                    width: width,
-                    logo_alignment: "left"
-                });
-                slot.setAttribute("data-rendered", "1");
-                if (slot.childElementCount) {
-                    placed += 1;
-                    var button = slot.nextElementSibling;
-                    if (button && button.classList.contains("google-button")) {
-                        button.hidden = true;
-                    }
-                }
-            });
-            if (placed) {
-                googleButtonsReady = true;
-            }
-        }).catch(function () {
-            googleButtonsReady = false;
-        });
-    }
-
     function ensureFirebase() {
         if (!window.firebase) {
             throw new Error("Firebase failed to load.");
@@ -523,8 +433,6 @@
             return auth.getRedirectResult();
         }).catch(function (error) {
             showAuthError(friendlyAuthError(error));
-        }).finally(function () {
-            mountGoogleButtons();
         });
 
         auth.onAuthStateChanged(function (user) {

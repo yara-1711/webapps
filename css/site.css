@@ -181,20 +181,7 @@ a { color: inherit; }
 
 body.is-signed-in .signed-out-copy { display: none; }
 body.is-signed-in .signed-in-copy { display: block; }
-body.is-signed-in .google-button,
-body.is-signed-in .google-slot { display: none !important; }
-
-.google-slot {
-    display: inline-flex;
-    align-items: center;
-    min-height: 40px;
-}
-
-.login-card .google-slot,
-.intro-panel .google-slot {
-    display: flex;
-    justify-content: center;
-}
+body.is-signed-in .google-button { display: none !important; }
 
 .plant-scape {
     position: fixed;
@@ -212,27 +199,20 @@ body[data-lobby="home"] #appRoot {
 .plant {
     position: absolute;
     display: block;
+    pointer-events: none;
+    user-select: none;
 }
 
-.plant-monstera {
-    width: min(380px, 46vw);
-    left: -70px;
-    bottom: -40px;
-    opacity: 0.55;
+.plant-top {
+    width: min(420px, 36vw);
+    top: -180px;
+    right: -130px;
 }
 
-.plant-branch {
-    width: min(260px, 32vw);
-    right: -88px;
-    top: 48px;
-    opacity: 0.4;
-}
-
-.plant-sprig {
-    width: min(220px, 28vw);
-    right: 8%;
-    bottom: -24px;
-    opacity: 0.4;
+.plant-bottom {
+    width: min(440px, 38vw);
+    left: -240px;
+    bottom: -180px;
 }
 
 .dashboard {
@@ -475,9 +455,8 @@ th {
 
     .header-actions { flex-wrap: wrap; }
 
-    .plant-monstera { width: 170px; left: -78px; bottom: -36px; opacity: 0.36; }
-    .plant-branch { width: 130px; right: -62px; top: 18px; opacity: 0.32; }
-    .plant-sprig { display: none; }
+    .plant-top { width: 150px; top: -70px; right: -78px; }
+    .plant-bottom { width: 150px; left: -90px; bottom: -70px; }
 }
 
 @media (max-width: 720px) {
