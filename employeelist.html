@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
     <script src="js/firebase.js"></script>
+    <link rel="stylesheet" href="css/site.css">
 </head>
 <body class="bg-base-200 min-h-screen">
     <div id="loginScreen" class="login-screen" hidden>
@@ -18,7 +19,7 @@
             <p class="login-kicker">Google account</p>
             <h1>Sign in with Google</h1>
             <p>The employee list stays hidden until you sign in. Employees are saved in Cloud Firestore for your Google account, not in this browser.</p>
-            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
+            <button type="button" class="google-button" id="googleSignInButton">Sign in with Google</button>
             <p id="authError" class="auth-error" hidden></p>
             <a class="login-back" href="index.html">← All projects</a>
         </div>
@@ -26,26 +27,24 @@
     <div id="appRoot" hidden>
         <div class="navbar bg-primary text-primary-content shadow-lg flex-wrap gap-2">
             <div class="flex-1 min-w-0">
-                <h1 class="text-xl sm:text-2xl font-bold px-3 sm:px-4 truncate">👥 Employee Manager</h1>
+                <a class="wordmark px-3 sm:px-4" href="index.html">My Projects</a>
             </div>
             <div class="px-2" id="sessionSlot"></div>
         </div>
 
         <div class="max-w-6xl mx-auto p-4 sm:p-5">
             <div class="mb-4">
-                <a href="index.html" class="btn btn-soft btn-secondary rounded-full shadow-md px-4 sm:px-6">
-                    <span>←</span> Back to My Projects <span>💗</span>
-                </a>
+                <a href="index.html" class="back-link">All projects</a>
             </div>
 
-            <div class="text-center py-6 sm:py-8">
-                <h1 class="text-3xl sm:text-4xl font-bold">Employee Dashboard</h1>
+            <div class="py-6 sm:py-8">
+                <h1 class="text-3xl sm:text-4xl font-bold">Employee List</h1>
                 <p class="text-base-content/60 mt-2">Add and manage your employees. Every record is saved in Cloud Firestore.</p>
             </div>
 
             <div class="stats shadow w-full mb-6">
                 <div class="stat">
-                    <div class="stat-figure text-primary text-3xl">👥</div>
+                    <div class="stat-figure text-primary text-sm font-semibold">On the list</div>
                     <div class="stat-title">Total Employees</div>
                     <div id="employeeCount" class="stat-value text-primary">0</div>
                 </div>
@@ -53,7 +52,7 @@
 
             <div class="card bg-base-100 shadow-xl mb-8">
                 <div class="card-body p-4 sm:p-8">
-                    <h2 class="card-title text-2xl">➕ Add Employee</h2>
+                    <h2 class="card-title text-2xl">Add an employee</h2>
                     <div class="divider"></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -61,7 +60,7 @@
                             <input id="name" placeholder="Enter full name" class="input input-bordered w-full">
                         </div>
                         <div>
-                            <span class="label-text font-semibold mb-1 block">🎂 Date of Birth</span>
+                            <span class="label-text font-semibold mb-1 block">Date of Birth</span>
                             <input id="dob" type="date" class="input input-bordered w-full">
                         </div>
                         <div>
@@ -73,39 +72,39 @@
                             </select>
                         </div>
                         <div>
-                            <span class="label-text font-semibold mb-1 block">📅 Date of Joining</span>
+                            <span class="label-text font-semibold mb-1 block">Date of Joining</span>
                             <input id="joining" type="date" class="input input-bordered w-full">
                         </div>
                         <div>
-                            <span class="label-text font-semibold mb-1 block">💼 Position</span>
+                            <span class="label-text font-semibold mb-1 block">Position</span>
                             <input id="position" placeholder="e.g. Manager" class="input input-bordered w-full">
                         </div>
                         <div>
-                            <span class="label-text font-semibold mb-1 block">🏢 Department</span>
+                            <span class="label-text font-semibold mb-1 block">Department</span>
                             <input id="department" placeholder="e.g. Finance" class="input input-bordered w-full">
                         </div>
                         <div>
-                            <span class="label-text font-semibold mb-1 block">⭐ Experience</span>
+                            <span class="label-text font-semibold mb-1 block">Experience</span>
                             <input id="experience" type="number" placeholder="Years" class="input input-bordered w-full">
                         </div>
                         <div>
-                            <span class="label-text font-semibold mb-1 block">💰 Salary</span>
+                            <span class="label-text font-semibold mb-1 block">Salary</span>
                             <input id="salary" type="number" step="5000" min="0" placeholder="Salary" class="input input-bordered w-full">
                         </div>
                         <div>
-                            <span class="label-text font-semibold mb-1 block">🩸 Blood Group</span>
+                            <span class="label-text font-semibold mb-1 block">Blood Group</span>
                             <input id="blood" placeholder="e.g. O+" class="input input-bordered w-full">
                         </div>
                         <div>
-                            <span class="label-text font-semibold mb-1 block">📧 Email</span>
+                            <span class="label-text font-semibold mb-1 block">Email</span>
                             <input id="email" type="email" placeholder="example@email.com" class="input input-bordered w-full">
                         </div>
                         <div class="md:col-span-2">
-                            <span class="label-text font-semibold mb-1 block">🏠 Address</span>
+                            <span class="label-text font-semibold mb-1 block">Address</span>
                             <input id="address" placeholder="Enter address" class="input input-bordered w-full">
                         </div>
                     </div>
-                    <button id="addEmployee" type="button" class="btn btn-primary btn-lg mt-5 w-full">➕ Add Employee</button>
+                    <button id="addEmployee" type="button" class="btn btn-primary btn-lg mt-5 w-full">Add employee</button>
                 </div>
             </div>
 
@@ -173,15 +172,15 @@
                     '</div>' +
                     '<div class="divider my-2"></div>' +
                     '<div class="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3">' +
-                    '<div class="bg-base-200 p-3 rounded-box"><small>Date of Birth</small><p class="break-words">🎂 ' + text(employee.dob) + '</p></div>' +
-                    '<div class="bg-base-200 p-3 rounded-box"><small>Date of Joining</small><p class="break-words">📅 ' + text(employee.joining) + '</p></div>' +
-                    '<div class="bg-base-200 p-3 rounded-box"><small>Salary</small><p class="break-words">💰 ₹' + text(employee.salary) + '</p></div>' +
-                    '<div class="bg-base-200 p-3 rounded-box"><small>Experience</small><p class="break-words">⭐ ' + text(employee.experience) + ' years</p></div>' +
-                    '<div class="bg-base-200 p-3 rounded-box"><small>Gender</small><p class="break-words">👤 ' + text(employee.gender) + '</p></div>' +
-                    '<div class="bg-base-200 p-3 rounded-box"><small>Blood Group</small><p class="break-words">🩸 ' + text(employee.blood) + '</p></div>' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Date of Birth</small><p class="break-words">' + text(employee.dob) + '</p></div>' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Date of Joining</small><p class="break-words">' + text(employee.joining) + '</p></div>' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Salary</small><p class="break-words">₹' + text(employee.salary) + '</p></div>' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Experience</small><p class="break-words">' + text(employee.experience) + ' years</p></div>' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Gender</small><p class="break-words">' + text(employee.gender) + '</p></div>' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Blood Group</small><p class="break-words">' + text(employee.blood) + '</p></div>' +
                     '</div>' +
-                    '<div class="mt-4 text-sm break-words">📧 ' + text(employee.email) + '<br><br>🏠 ' + text(employee.address) + '</div>' +
-                    '<button type="button" class="btn btn-error btn-sm mt-4 w-full sm:w-auto" data-id="' + AppAuth.escape(employee.id) + '">🗑️ Delete</button>' +
+                    '<div class="mt-4 text-sm break-words">' + text(employee.email) + '<br><br>' + text(employee.address) + '</div>' +
+                    '<button type="button" class="btn btn-error btn-sm mt-4 w-full sm:w-auto" data-id="' + AppAuth.escape(employee.id) + '">Delete</button>' +
                     '</div></div>';
             }).join("");
         }

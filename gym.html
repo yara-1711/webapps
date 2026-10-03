@@ -121,6 +121,7 @@
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
     <script src="js/firebase.js"></script>
+    <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
     <div id="loginScreen" class="login-screen" hidden>
@@ -128,7 +129,7 @@
             <p class="login-kicker">Google account</p>
             <h1>Sign in with Google</h1>
             <p>The gym log stays hidden until you sign in. Exercises, calories, and the diet plan are saved in Cloud Firestore.</p>
-            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
+            <button type="button" class="google-button" id="googleSignInButton">Sign in with Google</button>
             <p id="authError" class="auth-error" hidden></p>
             <a class="login-back" href="index.html">← All projects</a>
         </div>
@@ -136,10 +137,10 @@
     <div id="appRoot" hidden>
         <div class="box">
             <div class="top-bar">
-                <a href="index.html" class="btn btn-soft btn-secondary rounded-full px-6 shadow-md">← Back to My Projects 💗</a>
+                <a href="index.html" class="back-link">All projects</a>
                 <div id="sessionSlot"></div>
             </div>
-            <h1>🏋️ Gym Members</h1>
+            <h1>Gym Members</h1>
             <p class="subtitle">Log today’s training, the calories you eat, and the diet plan you are following.</p>
 
             <div class="summary">
@@ -159,7 +160,7 @@
             </div>
 
             <section class="panel">
-                <h2>➕ Daily exercise</h2>
+                <h2>Daily exercise</h2>
                 <p class="hint">Add a set, a run, or any session from the gym.</p>
                 <div class="fields">
                     <div>
@@ -215,7 +216,7 @@
             </section>
 
             <section class="panel">
-                <h2>🔥 Calories</h2>
+                <h2>Calories</h2>
                 <p class="hint">Record what you ate and how many calories it was.</p>
                 <div class="fields">
                     <div>
@@ -261,7 +262,7 @@
             </section>
 
             <section class="panel">
-                <h2>🥗 Diet plan</h2>
+                <h2>Diet plan</h2>
                 <p class="hint">Keep the meals you want to follow, by day or for every day.</p>
                 <div class="fields">
                     <div>

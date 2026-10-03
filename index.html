@@ -4,130 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Projects</title>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/site.css">
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
     <script src="js/firebase.js"></script>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100">
-    <div id="loginScreen" class="login-screen" hidden>
-        <div class="login-card">
-            <p class="login-kicker">Google account</p>
-            <h1>Sign in with Google</h1>
-            <p>Sign in to open your projects. Each app saves its lists in Cloud Firestore for this Google account.</p>
-            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
-            <p id="authError" class="auth-error" hidden></p>
-        </div>
-    </div>
-    <div id="appRoot" hidden>
-        <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
-            <div class="top-bar mb-8">
+<body data-lobby="home">
+    <div id="appRoot">
+        <header class="site-header">
+            <a class="wordmark" href="index.html">My Projects</a>
+            <div class="header-actions">
+                <p id="authChecking" class="auth-status" hidden>Checking your Google sign-in…</p>
+                <button type="button" class="google-button" id="googleSignInButton">Sign in with Google</button>
                 <div id="sessionSlot"></div>
             </div>
+        </header>
 
-            <div class="text-center mb-12">
-                <h1 class="text-4xl sm:text-5xl font-bold text-primary">💗 My Projects</h1>
-                <p class="mt-3 text-base sm:text-lg text-gray-600">
-                    Sign-in is done. Open a project to work with your saved lists.
-                </p>
+        <section class="hero">
+            <div>
+                <p class="eyebrow">Your apps</p>
+                <h1>My Projects</h1>
+                <p class="lede">Books, employees, students, medicines, training, screen time, and a small database. The names stay on this desk. Sign in with Google when you want to open a list.</p>
+                <ol class="name-row">
+                    <li><a href="booktracker.html">Book Tracker</a></li>
+                    <li><a href="employeelist.html">Employee List</a></li>
+                    <li><a href="students.html">Students</a></li>
+                    <li><a href="medicinetracker.html">Medicine Tracker</a></li>
+                    <li><a href="gym.html">Gym Members</a></li>
+                    <li><a href="screentimetracker.html">Screen Time Tracker</a></li>
+                    <li><a href="rdb.html">Database</a></li>
+                </ol>
             </div>
+            <aside class="intro-panel">
+                <p class="eyebrow">Google</p>
+                <div class="signed-out-copy">
+                    <h2>Sign in with Google</h2>
+                    <p>The dashboard stays visible. Each app opens after this same sign-in, and the rows are saved to that account.</p>
+                </div>
+                <div class="signed-in-copy">
+                    <h2>You’re signed in.</h2>
+                    <p>Pick an app below. New rows are written to Firestore for this Google account.</p>
+                </div>
+                <button type="button" class="google-button">Sign in with Google</button>
+                <p id="authError" class="auth-error" hidden></p>
+            </aside>
+        </section>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-                <a href="booktracker.html" class="card bg-pink-50 shadow-xl border-2 border-pink-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <div class="card-body">
-                        <div class="flex items-center gap-4 sm:gap-5">
-                            <div class="text-5xl sm:text-6xl">📚</div>
-                            <div>
-                                <h2 class="card-title text-xl sm:text-2xl text-pink-600">Book Tracker</h2>
-                                <p class="text-gray-600">Track and organize your books.</p>
-                            </div>
-                        </div>
-                        <div class="mt-5 text-right text-pink-600 font-semibold">Open →</div>
-                    </div>
+        <section class="dashboard" id="dashboard">
+            <div class="section-label">
+                <h2>Dashboard</h2>
+                <p>Seven lists. One account.</p>
+            </div>
+            <div class="app-grid">
+                <a class="app-card wide tone-book" href="booktracker.html">
+                    <span class="mark">01</span>
+                    <h3>Book Tracker</h3>
+                    <p>Titles, authors, and the ones you still want to read.</p>
+                    <span class="app-go">Open</span>
                 </a>
-
-                <a href="employeelist.html" class="card bg-purple-50 shadow-xl border-2 border-purple-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <div class="card-body">
-                        <div class="flex items-center gap-4 sm:gap-5">
-                            <div class="text-5xl sm:text-6xl">👩‍💼</div>
-                            <div>
-                                <h2 class="card-title text-xl sm:text-2xl text-purple-600">Employee List</h2>
-                                <p class="text-gray-600">Manage employee information.</p>
-                            </div>
-                        </div>
-                        <div class="mt-5 text-right text-purple-600 font-semibold">Open →</div>
-                    </div>
+                <a class="app-card wide tone-people" href="employeelist.html">
+                    <span class="mark">02</span>
+                    <h3>Employee List</h3>
+                    <p>Names, roles, and the people on the roster.</p>
+                    <span class="app-go">Open</span>
                 </a>
-
-                <a href="rdb.html" class="card bg-blue-50 shadow-xl border-2 border-blue-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <div class="card-body">
-                        <div class="flex items-center gap-4 sm:gap-5">
-                            <div class="text-5xl sm:text-6xl">🗄️</div>
-                            <div>
-                                <h2 class="card-title text-xl sm:text-2xl text-blue-600">Database</h2>
-                                <p class="text-gray-600">Work with SQL and databases.</p>
-                            </div>
-                        </div>
-                        <div class="mt-5 text-right text-blue-600 font-semibold">Open →</div>
-                    </div>
+                <a class="app-card tone-study" href="students.html">
+                    <span class="mark">03</span>
+                    <h3>Students</h3>
+                    <p>Roll numbers, grades, and where they live.</p>
+                    <span class="app-go">Open</span>
                 </a>
-
-                <a href="students.html" class="card bg-emerald-50 shadow-xl border-2 border-emerald-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <div class="card-body">
-                        <div class="flex items-center gap-4 sm:gap-5">
-                            <div class="text-5xl sm:text-6xl">🎓</div>
-                            <div>
-                                <h2 class="card-title text-xl sm:text-2xl text-emerald-600">Students</h2>
-                                <p class="text-gray-600">Manage student records.</p>
-                            </div>
-                        </div>
-                        <div class="mt-5 text-right text-emerald-600 font-semibold">Open →</div>
-                    </div>
+                <a class="app-card tone-health" href="medicinetracker.html">
+                    <span class="mark">04</span>
+                    <h3>Medicine Tracker</h3>
+                    <p>Doses and the schedule you mean to keep.</p>
+                    <span class="app-go">Open</span>
                 </a>
-
-                <a href="medicinetracker.html" class="card bg-teal-50 shadow-xl border-2 border-teal-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <div class="card-body">
-                        <div class="flex items-center gap-4 sm:gap-5">
-                            <div class="text-5xl sm:text-6xl">💊</div>
-                            <div>
-                                <h2 class="card-title text-xl sm:text-2xl text-teal-600">Medicine Tracker</h2>
-                                <p class="text-gray-600">Track medicines, doses, and schedules.</p>
-                            </div>
-                        </div>
-                        <div class="mt-5 text-right text-teal-600 font-semibold">Open →</div>
-                    </div>
+                <a class="app-card tone-train" href="gym.html">
+                    <span class="mark">05</span>
+                    <h3>Gym Members</h3>
+                    <p>Exercises, calories, and the diet plan for the day.</p>
+                    <span class="app-go">Open</span>
                 </a>
-
-                <a href="gym.html" class="card bg-orange-50 shadow-xl border-2 border-orange-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <div class="card-body">
-                        <div class="flex items-center gap-4 sm:gap-5">
-                            <div class="text-5xl sm:text-6xl">🏋️</div>
-                            <div>
-                                <h2 class="card-title text-xl sm:text-2xl text-orange-600">Gym Members</h2>
-                                <p class="text-gray-600">Log exercises, calories, and a diet plan.</p>
-                            </div>
-                        </div>
-                        <div class="mt-5 text-right text-orange-600 font-semibold">Open →</div>
-                    </div>
+                <a class="app-card wide tone-time" href="screentimetracker.html">
+                    <span class="mark">06</span>
+                    <h3>Screen Time Tracker</h3>
+                    <p>Apps, minutes, and where the hours went.</p>
+                    <span class="app-go">Open</span>
                 </a>
-
-                <a href="screentimetracker.html" class="card bg-amber-50 shadow-xl border-2 border-amber-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <div class="card-body">
-                        <div class="flex items-center gap-4 sm:gap-5">
-                            <div class="text-5xl sm:text-6xl">📱</div>
-                            <div>
-                                <h2 class="card-title text-xl sm:text-2xl text-amber-600">Screen Time Tracker</h2>
-                                <p class="text-gray-600">Track apps, time spent, and categories.</p>
-                            </div>
-                        </div>
-                        <div class="mt-5 text-right text-amber-600 font-semibold">Open →</div>
-                    </div>
+                <a class="app-card wide tone-data" href="rdb.html">
+                    <span class="mark">07</span>
+                    <h3>Database</h3>
+                    <p>A small student table stored with your account.</p>
+                    <span class="app-go">Open</span>
                 </a>
             </div>
-        </main>
+        </section>
+        <footer class="site-footer">My Projects · lists stay with the signed-in Google account.</footer>
     </div>
     <script>
         AppAuth.start(function () {});
