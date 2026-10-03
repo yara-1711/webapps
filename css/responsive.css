@@ -1,0 +1,100 @@
+/*
+ * Turns wide data tables into stacked cards on small screens.
+ * Status pills stay on one line.
+ */
+.pill {
+    white-space: nowrap;
+    width: auto;
+    height: auto;
+}
+
+@media (max-width: 720px) {
+    .table-box {
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+
+    .table-box table {
+        min-width: 0 !important;
+        width: 100%;
+    }
+
+    .table-box thead {
+        display: none;
+    }
+
+    .table-box table,
+    .table-box tbody,
+    .table-box tr,
+    .table-box td {
+        display: block;
+        width: 100%;
+    }
+
+    .table-box tr {
+        background: white;
+        border-radius: 16px;
+        margin-bottom: 12px;
+        padding: 8px 14px 12px;
+        box-shadow: 0 8px 25px rgba(80, 60, 120, 0.12);
+    }
+
+    .table-box td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        text-align: right;
+        border: none !important;
+        padding: 8px 0 !important;
+        max-width: 100%;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .table-box td > * {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .table-box .pill {
+        flex: 0 0 auto;
+        min-width: max-content;
+    }
+
+    .table-box td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-align: left;
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .table-box td.empty {
+        display: block;
+        text-align: center;
+    }
+
+    .table-box td.empty::before {
+        content: none;
+    }
+
+    .table-box td.actions {
+        flex-wrap: wrap;
+    }
+
+    .table-box .edit,
+    .table-box .delete,
+    #pages button {
+        width: auto !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: flex-end;
+    }
+}

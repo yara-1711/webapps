@@ -1,1548 +1,292 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <title>My Medicine Tracker</title>
-
-
-    <!-- SQL.js -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/responsive.css">
     <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-
+        * { box-sizing: border-box; }
         body {
-
             font-family: Arial, sans-serif;
-
-            background: linear-gradient(
-                135deg,
-                #e8f7f4,
-                #fdf8ef
-            );
-
+            background: linear-gradient(135deg, #e8f7f4, #fdf8ef);
             min-height: 100vh;
-
             margin: 0;
-
-            padding: 40px 20px;
-
+            padding: 28px 16px 40px;
             color: #3b4d48;
         }
-
-
-        .box {
-
-            max-width: 1100px;
-
-            margin: auto;
-        }
-
-
-        h1 {
-
-            text-align: center;
-
-            color: #2f7a6f;
-
-            font-size: 38px;
-
-            font-weight: bold;
-
-            margin-bottom: 8px;
-        }
-
-
-        .subtitle {
-
-            text-align: center;
-
-            color: #7b918c;
-
-            margin-bottom: 30px;
-        }
-
-
-        .form {
-
+        .box { max-width: 1100px; margin: auto; }
+        h1 { text-align: center; color: #2f7a6f; font-size: 38px; margin: 0 0 8px; }
+        .subtitle { text-align: center; color: #7b918c; margin: 0 0 30px; }
+        .form, .table-box {
             background: white;
-
             padding: 25px;
-
             border-radius: 20px;
-
-            box-shadow:
-                0 8px 25px
-                rgba(47, 122, 111, 0.12);
-
+            box-shadow: 0 8px 25px rgba(47, 122, 111, 0.12);
             margin-bottom: 25px;
         }
-
-
-        .form h2 {
-
-            margin-top: 0;
-
-            color: #2f7a6f;
-        }
-
-
-        input,
-        select {
-
+        .form h2 { margin-top: 0; color: #2f7a6f; }
+        .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+        input, select {
             padding: 12px;
-
-            margin: 5px;
-
             border: 1px solid #d6ede8;
-
             border-radius: 10px;
-
             background: #f9fffd;
-
             color: #40524e;
-
             outline: none;
+            font-size: 16px;
         }
-
-
-        input:focus,
-        select:focus {
-
-            border-color: #4aa392;
-        }
-
-
-        input {
-
-            width: 220px;
-        }
-
-
-        select {
-
-            cursor: pointer;
-        }
-
-
+        input { width: min(220px, 100%); }
+        select { min-width: 10rem; white-space: nowrap; }
+        input:focus, select:focus { border-color: #4aa392; }
         button {
-
             padding: 11px 17px;
-
-            margin: 5px;
-
             border: none;
-
             border-radius: 10px;
-
             cursor: pointer;
-
             color: white;
-
             background: #3d9a8a;
-
             font-weight: bold;
-
-            transition: 0.2s;
         }
-
-
-        button:hover {
-
-            transform: translateY(-2px);
-
-            opacity: 0.9;
-        }
-
-
-        .add-button {
-
-            background: #3d9a8a;
-
-            padding: 12px 22px;
-        }
-
-
-        .edit {
-
-            background: #70a887;
-        }
-
-
-        .delete {
-
-            background: #d96b6b;
-        }
-
-
-        .filter-box {
-
-            margin-top: 20px;
-
-            padding-top: 15px;
-
-            border-top: 1px solid #e9f5f2;
-        }
-
-
-        .filter-box label {
-
-            font-weight: bold;
-
-            color: #2f7a6f;
-        }
-
-
-        .export-button {
-
-            background: #4aa392;
-        }
-
-
-        .export-button:hover {
-
-            background: #2f7a6f;
-        }
-
-
-        .table-box {
-
-            background: white;
-
+        .edit { background: #70a887; }
+        .delete { background: #d96b6b; }
+        .export-button { background: #4aa392; }
+        .filter-box { margin-top: 20px; padding-top: 15px; border-top: 1px solid #e9f5f2; }
+        .filter-box label { font-weight: bold; color: #2f7a6f; }
+        .table-box { padding: 10px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #3d9a8a; color: white; padding: 15px; cursor: pointer; white-space: nowrap; }
+        th:first-child { border-radius: 12px 0 0 12px; }
+        th:last-child { border-radius: 0 12px 12px 0; }
+        td { padding: 15px 10px; text-align: center; border-bottom: 1px solid #e7f4f1; }
+        tr:hover { background: #f7fffc; }
+        span.pill {
+            padding: 6px 12px !important;
             border-radius: 20px;
-
-            padding: 10px;
-
-            box-shadow:
-                0 8px 25px
-                rgba(47, 122, 111, 0.12);
-
-            overflow-x: auto;
-        }
-
-
-        table {
-
-            width: 100%;
-
-            border-collapse: collapse;
-
-            min-width: 700px;
-        }
-
-
-        th {
-
-            background: #3d9a8a;
-
-            color: white;
-
-            padding: 15px;
-
-            cursor: pointer;
-        }
-
-
-        th:first-child {
-
-            border-radius: 12px 0 0 12px;
-        }
-
-
-        th:last-child {
-
-            border-radius: 0 12px 12px 0;
-        }
-
-
-        td {
-
-            padding: 15px 10px;
-
-            text-align: center;
-
-            border-bottom:
-                1px solid #eaf4f1;
-        }
-
-
-        tr:hover {
-
-            background: #f8fffd;
-        }
-
-
-        .status {
-
-            padding: 6px 12px;
-
-            border-radius: 20px;
-
             font-size: 13px;
-
             font-weight: bold;
-
             display: inline-block;
+            width: auto !important;
+            height: auto !important;
+            line-height: 1.2;
+            white-space: nowrap;
         }
-
-
-        .active {
-
-            background: #e2f4e8;
-
-            color: #4c8a62;
+        .active { background: #e2f4e8; color: #4c8a62; }
+        .paused { background: #fff1d8; color: #b47720; }
+        .finished { background: #eee7ff; color: #7057a9; }
+        #pages { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+        #pages button { background: #7ec4b6; min-width: 40px; width: auto; }
+        .empty { text-align: center; padding: 30px; color: #92a59f; }
+        .action-buttons { display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+        @media (max-width: 720px) {
+            body { padding: 16px 12px 28px; }
+            h1 { font-size: 28px; }
+            .form { padding: 18px; }
+            .controls, .filter-box .controls { display: grid; }
+            input, select, .form button, .export-button { width: 100%; min-width: 0; }
+            #pages button, .edit, .delete { width: auto; }
         }
-
-
-        .paused {
-
-            background: #fff1d8;
-
-            color: #b47720;
-        }
-
-
-        .finished {
-
-            background: #eee7ff;
-
-            color: #7057a9;
-        }
-
-
-        #pages {
-
-            text-align: center;
-
-            margin-top: 25px;
-        }
-
-
-        #pages button {
-
-            background: #7ec4b6;
-
-            min-width: 40px;
-        }
-
-
-        #pages button:hover {
-
-            background: #3d9a8a;
-        }
-
-
-        .empty {
-
-            text-align: center;
-
-            padding: 30px;
-
-            color: #92a59f;
-        }
-
-
-        @media (max-width: 600px) {
-
-
-            body {
-
-                padding: 20px 12px;
-            }
-
-
-            h1 {
-
-                font-size: 30px;
-            }
-
-
-            .subtitle {
-
-                font-size: 14px;
-
-                margin-bottom: 20px;
-            }
-
-
-            .form {
-
-                padding: 18px;
-
-                border-radius: 16px;
-            }
-
-
-            .form h2 {
-
-                font-size: 21px;
-            }
-
-
-            input,
-            select {
-
-                width: 100%;
-
-                margin: 6px 0;
-
-                padding: 13px;
-            }
-
-
-            button {
-
-                width: 100%;
-
-                margin: 6px 0;
-
-                padding: 13px;
-            }
-
-
-            .filter-box {
-
-                margin-top: 15px;
-            }
-
-
-            .filter-box label {
-
-                display: block;
-
-                margin-bottom: 5px;
-            }
-
-
-            .table-box {
-
-                padding: 5px;
-
-                border-radius: 16px;
-            }
-
-
-            th,
-            td {
-
-                padding: 12px 8px;
-
-                font-size: 14px;
-            }
-
-
-            .edit,
-            .delete {
-
-                width: auto;
-
-                padding: 8px 12px;
-
-                margin: 2px;
-            }
-
-
-            .status {
-
-                font-size: 12px;
-
-                padding: 5px 8px;
-            }
-
-        }
-
     </style>
-    <link
-    href="https://cdn.jsdelivr.net/npm/daisyui@5"
-    rel="stylesheet">
-
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/records.js"></script>
 </head>
-
-
 <body>
-
-<button
-    onclick="window.location.href='index.html'"
-    class="btn btn-soft btn-secondary
-           rounded-full
-           px-6
-           shadow-md
-           hover:shadow-lg
-           hover:-translate-y-1
-           transition-all duration-300">
-
-    ← Back to My Projects 💗
-
-</button>
-
-
-
-
-<div class="box">
-
-
-    <h1>♡ My Medicine Tracker ♡</h1>
-
-
-    <p class="subtitle">
-
-        Keep track of medicines, doses, and when to take them ✨
-
-    </p>
-
-
-
-    <div class="form">
-
-
-        <h2>➕ Add a Medicine</h2>
-
-
-        <input
-            id="name"
-            type="text"
-            placeholder="Medicine name"
-        >
-
-
-        <input
-            id="dosage"
-            type="text"
-            placeholder="Dosage (e.g. 500mg)"
-        >
-
-
-        <select id="schedule">
-
-            <option value="Morning">
-                Morning
-            </option>
-
-            <option value="Afternoon">
-                Afternoon
-            </option>
-
-            <option value="Evening">
-                Evening
-            </option>
-
-            <option value="Night">
-                Night
-            </option>
-
-            <option value="As needed">
-                As needed
-            </option>
-
-        </select>
-
-
-        <select id="status">
-
-            <option value="Active">
-                Active
-            </option>
-
-            <option value="Paused">
-                Paused
-            </option>
-
-            <option value="Finished">
-                Finished
-            </option>
-
-        </select>
-
-
-        <button
-            class="add-button"
-            onclick="addMedicine()">
-
-            Add Medicine
-
-        </button>
-
-
-
-        <div class="filter-box">
-
-
-            <label>💊 Show:</label>
-
-
-            <select
-                id="filter"
-                onchange="showMedicines()">
-
-                <option value="All">
-                    All Medicines
-                </option>
-
-                <option value="Active">
-                    Active
-                </option>
-
-                <option value="Paused">
-                    Paused
-                </option>
-
-                <option value="Finished">
-                    Finished
-                </option>
-
-            </select>
-
-
-            <button
-                class="export-button"
-                onclick="exportCSV()">
-
-                ↓ Export to CSV
-
-            </button>
-
-
+    <div id="appRoot" hidden>
+        <div class="box">
+            <div class="top-bar">
+                <a href="index.html" class="btn btn-soft btn-secondary rounded-full px-6 shadow-md">← Back to My Projects 💗</a>
+                <div id="sessionSlot"></div>
+            </div>
+            <h1>♡ My Medicine Tracker ♡</h1>
+            <p class="subtitle">Keep track of medicines, doses, and when to take them ✨</p>
+            <div class="form">
+                <h2>➕ Add a Medicine</h2>
+                <div class="controls">
+                    <input id="name" type="text" placeholder="Medicine name">
+                    <input id="dosage" type="text" placeholder="Dosage (e.g. 500mg)">
+                    <select id="schedule" aria-label="Schedule">
+                        <option>Morning</option>
+                        <option>Afternoon</option>
+                        <option>Evening</option>
+                        <option>Night</option>
+                        <option>As needed</option>
+                    </select>
+                    <select id="status" aria-label="Status">
+                        <option>Active</option>
+                        <option>Paused</option>
+                        <option>Finished</option>
+                    </select>
+                    <button class="add-button" id="addMedicine" type="button">Add Medicine</button>
+                </div>
+                <div class="filter-box">
+                    <div class="controls">
+                        <label for="filter">💊 Show:</label>
+                        <select id="filter">
+                            <option value="All">All Medicines</option>
+                            <option>Active</option>
+                            <option>Paused</option>
+                            <option>Finished</option>
+                        </select>
+                        <button class="export-button" id="exportCsv" type="button">↓ Export to CSV</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-box">
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-sort="name">Name ↕️</th>
+                            <th data-sort="dosage">Dosage ↕️</th>
+                            <th data-sort="schedule">Schedule ↕️</th>
+                            <th data-sort="status">Status ↕️</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="medicineList"></tbody>
+                </table>
+            </div>
+            <div id="pages"></div>
         </div>
-
     </div>
+    <script>
+        var medicines = [];
+        var currentPage = 1;
+        var sortColumn = "name";
+        var sortOrder = "ASC";
+        var perPage = 20;
+        var loaded = false;
 
-
-
-    <div class="table-box">
-
-
-        <table>
-
-
-            <thead>
-
-                <tr>
-
-                    <th onclick="sortMedicines('name')">
-                        Name ↕️
-                    </th>
-
-                    <th onclick="sortMedicines('dosage')">
-                        Dosage ↕️
-                    </th>
-
-                    <th onclick="sortMedicines('schedule')">
-                        Schedule ↕️
-                    </th>
-
-                    <th onclick="sortMedicines('status')">
-                        Status ↕️
-                    </th>
-
-                    <th>
-                        Actions
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody id="medicineList">
-
-            </tbody>
-
-
-        </table>
-
-    </div>
-
-
-
-    <div id="pages"></div>
-
-
-</div>
-
-
-
-<script>
-
-
-    let db = null;
-
-    let currentPage = 1;
-
-    let sortColumn = "name";
-
-    let sortOrder = "ASC";
-
-    const medicinesPerPage = 20;
-
-
-
-    /*
-        SAVE DATABASE TO LOCAL STORAGE
-    */
-
-    function saveDatabase() {
-
-        let data = db.export();
-
-        let dataString = "";
-
-        for (let i = 0; i < data.length; i++) {
-
-            dataString +=
-                String.fromCharCode(data[i]);
-
+        function statusClass(status) {
+            if (status === "Active") return "active";
+            if (status === "Paused") return "paused";
+            return "finished";
         }
 
-        let base64 =
-            btoa(dataString);
-
-        localStorage.setItem(
-            "myMedicineTracker",
-            base64
-        );
-
-    }
-
-
-
-    /*
-        LOAD DATABASE FROM LOCAL STORAGE
-    */
-
-    function loadDatabase(SQL) {
-
-        let savedData =
-            localStorage.getItem(
-                "myMedicineTracker"
-            );
-
-
-        if (savedData) {
-
-            let binary =
-                atob(savedData);
-
-            let data =
-                new Uint8Array(
-                    binary.length
-                );
-
-
-            for (
-                let i = 0;
-                i < binary.length;
-                i++
-            ) {
-
-                data[i] =
-                    binary.charCodeAt(i);
-
+        function showMedicines() {
+            var filter = document.getElementById("filter").value;
+            var visible = medicines.filter(function (item) {
+                return filter === "All" || item.status === filter;
+            });
+            visible = Records.sortBy(visible, sortColumn, sortOrder);
+            var view = Records.paginate(visible, currentPage, perPage);
+            currentPage = view.page || 1;
+            var list = document.getElementById("medicineList");
+            if (!loaded) {
+                list.innerHTML = '<tr><td colspan="5" class="empty">Loading your medicines…</td></tr>';
+                return;
             }
-
-
-            db =
-                new SQL.Database(data);
-
-        }
-
-        else {
-
-            db =
-                new SQL.Database();
-
-
-            db.run(`
-
-                CREATE TABLE medicines (
-
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-                    name TEXT,
-
-                    dosage TEXT,
-
-                    schedule TEXT,
-
-                    status TEXT
-
-                )
-
-            `);
-
-
-            saveDatabase();
-
-        }
-
-
-        showMedicines();
-
-    }
-
-
-
-    /*
-        START SQL.JS
-    */
-
-    initSqlJs({
-
-        locateFile: function(file) {
-
-            return "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/" + file;
-
-        }
-
-    }).then(function(SQL) {
-
-        loadDatabase(SQL);
-
-    });
-
-
-
-    /*
-        ADD MEDICINE
-    */
-
-    function addMedicine() {
-
-
-        if (db == null) {
-
-            alert(
-                "Please wait for the medicine tracker to load."
-            );
-
-            return;
-
-        }
-
-
-        let name =
-            document.getElementById(
-                "name"
-            ).value.trim();
-
-
-        let dosage =
-            document.getElementById(
-                "dosage"
-            ).value.trim();
-
-
-        let schedule =
-            document.getElementById(
-                "schedule"
-            ).value;
-
-
-        let status =
-            document.getElementById(
-                "status"
-            ).value;
-
-
-
-        if (
-            name == "" ||
-            dosage == ""
-        ) {
-
-            alert(
-                "Please enter the medicine name and dosage."
-            );
-
-            return;
-
-        }
-
-
-
-        db.run(
-
-            `INSERT INTO medicines
-            (name, dosage, schedule, status)
-            VALUES (?, ?, ?, ?)`,
-
-            [
-                name,
-                dosage,
-                schedule,
-                status
-            ]
-
-        );
-
-
-        saveDatabase();
-
-
-        document.getElementById(
-            "name"
-        ).value = "";
-
-
-        document.getElementById(
-            "dosage"
-        ).value = "";
-
-
-        currentPage = 1;
-
-
-        showMedicines();
-
-    }
-
-
-
-    /*
-        SHOW MEDICINES
-    */
-
-    function showMedicines() {
-
-
-        if (db == null) {
-
-            return;
-
-        }
-
-
-        let filter =
-            document.getElementById(
-                "filter"
-            ).value;
-
-
-        let query =
-            "SELECT * FROM medicines";
-
-
-        let values = [];
-
-
-
-        if (filter != "All") {
-
-            query +=
-                " WHERE status = ?";
-
-            values.push(filter);
-
-        }
-
-
-
-        query +=
-            " ORDER BY "
-            + sortColumn
-            + " "
-            + sortOrder;
-
-
-
-        let result =
-            db.exec(
-                query,
-                values
-            );
-
-
-        let medicines = [];
-
-
-
-        if (result.length > 0) {
-
-            medicines =
-                result[0].values;
-
-        }
-
-
-
-        let start =
-            (currentPage - 1)
-            * medicinesPerPage;
-
-
-        let end =
-            start + medicinesPerPage;
-
-
-        let pageMedicines =
-            medicines.slice(
-                start,
-                end
-            );
-
-
-        let list =
-            document.getElementById(
-                "medicineList"
-            );
-
-
-        list.innerHTML = "";
-
-
-
-        if (
-            pageMedicines.length == 0
-        ) {
-
-            list.innerHTML = `
-
-                <tr>
-
-                    <td
-                        colspan="5"
-                        class="empty">
-
-                        ♡ No medicines here yet!
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
-
-
-
-        pageMedicines.forEach(
-            function(medicine) {
-
-
-                let id = medicine[0];
-
-                let name = medicine[1];
-
-                let dosage = medicine[2];
-
-                let schedule = medicine[3];
-
-                let status = medicine[4];
-
-
-
-                let statusClass = "";
-
-
-                if (
-                    status ==
-                    "Active"
-                ) {
-
-                    statusClass =
-                        "active";
-
-                }
-
-                else if (
-                    status ==
-                    "Paused"
-                ) {
-
-                    statusClass =
-                        "paused";
-
-                }
-
-                else {
-
-                    statusClass =
-                        "finished";
-
-                }
-
-
-
-                list.innerHTML += `
-
-                    <tr>
-
-                        <td>
-
-                            <strong>
-                                ${name}
-                            </strong>
-
-                        </td>
-
-
-                        <td>
-                            ${dosage}
-                        </td>
-
-
-                        <td>
-                            ${schedule}
-                        </td>
-
-
-                        <td>
-
-                            <span
-                                class="status ${statusClass}">
-
-                                ${status}
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            <button
-                                class="edit"
-                                onclick="editMedicine(${id})">
-
-                                Edit
-
-                            </button>
-
-
-                            <button
-                                class="delete"
-                                onclick="deleteMedicine(${id})">
-
-                                Delete
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-                `;
-
+            if (view.rows.length === 0) {
+                list.innerHTML = '<tr><td colspan="5" class="empty">♡ No medicines here yet!</td></tr>';
+            } else {
+                list.innerHTML = view.rows.map(function (item) {
+                    return '<tr>' +
+                        '<td data-label="Name"><strong>' + AppAuth.escape(item.name) + '</strong></td>' +
+                        '<td data-label="Dosage">' + AppAuth.escape(item.dosage) + '</td>' +
+                        '<td data-label="Schedule">' + AppAuth.escape(item.schedule) + '</td>' +
+                        '<td data-label="Status"><span class="pill ' + statusClass(item.status) + '">' + AppAuth.escape(item.status).replace(/ /g, "&nbsp;") + '</span></td>' +
+                        '<td class="actions" data-label="Actions"><span class="action-buttons">' +
+                        '<button class="edit" type="button" data-action="edit" data-id="' + AppAuth.escape(item.id) + '">Edit</button>' +
+                        '<button class="delete" type="button" data-action="delete" data-id="' + AppAuth.escape(item.id) + '">Delete</button>' +
+                        '</span></td></tr>';
+                }).join("");
             }
-        );
-
-
-        makePages(
-            medicines.length
-        );
-
-    }
-
-
-
-    /*
-        EDIT MEDICINE
-    */
-
-    function editMedicine(id) {
-
-
-        let result =
-            db.exec(
-                "SELECT * FROM medicines WHERE id = ?",
-                [id]
-            );
-
-
-        if (
-            result.length == 0
-        ) {
-
-            return;
-
+            var pages = document.getElementById("pages");
+            pages.innerHTML = "";
+            for (var i = 1; i <= view.totalPages; i++) {
+                pages.innerHTML += '<button type="button" data-page="' + i + '">' + i + '</button>';
+            }
         }
 
+        document.getElementById("addMedicine").addEventListener("click", function () {
+            var name = document.getElementById("name").value.trim();
+            var dosage = document.getElementById("dosage").value.trim();
+            if (!name || !dosage) {
+                alert("Please enter the medicine name and dosage.");
+                return;
+            }
+            AppAuth.add("medicines", {
+                name: name,
+                dosage: dosage,
+                schedule: document.getElementById("schedule").value,
+                status: document.getElementById("status").value
+            }).then(function () {
+                document.getElementById("name").value = "";
+                document.getElementById("dosage").value = "";
+                currentPage = 1;
+            }).catch(function (error) { AppAuth.showDataError(error); });
+        });
 
-        let medicine =
-            result[0].values[0];
+        document.getElementById("medicineList").addEventListener("click", function (event) {
+            var button = event.target.closest("[data-action]");
+            if (!button) return;
+            var id = button.getAttribute("data-id");
+            var item = medicines.find(function (row) { return row.id === id; });
+            if (!item) return;
+            if (button.getAttribute("data-action") === "delete") {
+                if (confirm("Delete this medicine?")) {
+                    AppAuth.remove("medicines", id).catch(function (error) { AppAuth.showDataError(error); });
+                }
+                return;
+            }
+            var name = prompt("Medicine name:", item.name || "");
+            if (name == null) return;
+            var dosage = prompt("Dosage:", item.dosage || "");
+            if (dosage == null) return;
+            var schedule = prompt("Schedule (Morning / Afternoon / Evening / Night / As needed):", item.schedule || "");
+            if (schedule == null) return;
+            var status = prompt("Status (Active / Paused / Finished):", item.status || "");
+            if (status == null) return;
+            AppAuth.update("medicines", id, {
+                name: name.trim(),
+                dosage: dosage.trim(),
+                schedule: schedule.trim(),
+                status: status.trim()
+            }).catch(function (error) { AppAuth.showDataError(error); });
+        });
 
-
-
-        let name =
-            prompt(
-                "Medicine name:",
-                medicine[1]
-            );
-
-
-        if (name == null) {
-
-            return;
-
-        }
-
-
-
-        let dosage =
-            prompt(
-                "Dosage:",
-                medicine[2]
-            );
-
-
-        if (dosage == null) {
-
-            return;
-
-        }
-
-
-
-        let schedule =
-            prompt(
-                "Schedule (Morning / Afternoon / Evening / Night / As needed):",
-                medicine[3]
-            );
-
-
-        if (schedule == null) {
-
-            return;
-
-        }
-
-
-
-        let status =
-            prompt(
-                "Status (Active / Paused / Finished):",
-                medicine[4]
-            );
-
-
-        if (status == null) {
-
-            return;
-
-        }
-
-
-
-        db.run(
-
-            `UPDATE medicines
-
-             SET name = ?,
-                 dosage = ?,
-                 schedule = ?,
-                 status = ?
-
-             WHERE id = ?`,
-
-            [
-                name,
-                dosage,
-                schedule,
-                status,
-                id
-            ]
-
-        );
-
-
-        saveDatabase();
-
-
-        showMedicines();
-
-    }
-
-
-
-    /*
-        DELETE MEDICINE
-    */
-
-    function deleteMedicine(id) {
-
-
-        let answer =
-            confirm(
-                "Delete this medicine?"
-            );
-
-
-        if (answer) {
-
-
-            db.run(
-
-                "DELETE FROM medicines WHERE id = ?",
-
-                [id]
-
-            );
-
-
-            saveDatabase();
-
-
+        document.getElementById("exportCsv").addEventListener("click", function () {
+            if (medicines.length === 0) {
+                alert("There are no medicines to export!");
+                return;
+            }
+            Records.downloadCsv("my-medicines.csv", ["Name", "Dosage", "Schedule", "Status"], medicines.map(function (item) {
+                return [item.name, item.dosage, item.schedule, item.status];
+            }));
+        });
+        document.getElementById("filter").addEventListener("change", function () {
+            currentPage = 1;
             showMedicines();
-
-        }
-
-    }
-
-
-
-    /*
-        SORT MEDICINES
-    */
-
-    function sortMedicines(column) {
-
-
-        if (
-            sortColumn == column
-        ) {
-
-
-            if (
-                sortOrder == "ASC"
-            ) {
-
-                sortOrder =
-                    "DESC";
-
-            }
-
-            else {
-
-                sortOrder =
-                    "ASC";
-
-            }
-
-        }
-
-        else {
-
-            sortColumn =
-                column;
-
-            sortOrder =
-                "ASC";
-
-        }
-
-
-        currentPage = 1;
-
-
-        showMedicines();
-
-    }
-
-
-
-    /*
-        MAKE PAGE BUTTONS
-    */
-
-    function makePages(totalMedicines) {
-
-
-        let totalPages =
-            Math.ceil(
-                totalMedicines /
-                medicinesPerPage
-            );
-
-
-        let pages =
-            document.getElementById(
-                "pages"
-            );
-
-
-        pages.innerHTML = "";
-
-
-
-        for (
-            let i = 1;
-            i <= totalPages;
-            i++
-        ) {
-
-
-            pages.innerHTML += `
-
-                <button
-                    onclick="goToPage(${i})">
-
-                    ${i}
-
-                </button>
-
-            `;
-
-        }
-
-    }
-
-
-
-    /*
-        CHANGE PAGE
-    */
-
-    function goToPage(page) {
-
-
-        currentPage = page;
-
-
-        showMedicines();
-
-    }
-
-
-
-    /*
-        EXPORT TO CSV
-    */
-
-    function exportCSV() {
-
-
-        if (db == null) {
-
-            alert(
-                "Please wait for the medicine tracker to load."
-            );
-
-            return;
-
-        }
-
-
-        let result =
-            db.exec(
-                `SELECT name, dosage, schedule, status
-                 FROM medicines`
-            );
-
-
-
-        if (
-            result.length == 0
-        ) {
-
-            alert(
-                "There are no medicines to export!"
-            );
-
-            return;
-
-        }
-
-
-
-        let medicines =
-            result[0].values;
-
-
-        let csv =
-            "Name,Dosage,Schedule,Status\n";
-
-
-
-        medicines.forEach(
-            function(medicine) {
-
-
-                let name =
-                    medicine[0];
-
-                let dosage =
-                    medicine[1];
-
-                let schedule =
-                    medicine[2];
-
-                let status =
-                    medicine[3];
-
-
-
-                csv +=
-                    '"' +
-                    name +
-                    '",' +
-
-                    '"' +
-                    dosage +
-                    '",' +
-
-                    '"' +
-                    schedule +
-                    '",' +
-
-                    '"' +
-                    status +
-                    '"\n';
-
-            }
-        );
-
-
-
-        let file =
-            new Blob(
-
-                [csv],
-
-                {
-                    type:
-                        "text/csv"
-                }
-
-            );
-
-
-        let link =
-            document.createElement(
-                "a"
-            );
-
-
-        link.href =
-            URL.createObjectURL(
-                file
-            );
-
-
-        link.download =
-            "my-medicines.csv";
-
-
-        link.click();
-
-    }
-
-
-</script>
-
-
+        });
+        document.querySelector("thead").addEventListener("click", function (event) {
+            var header = event.target.closest("[data-sort]");
+            if (!header) return;
+            var column = header.getAttribute("data-sort");
+            sortOrder = sortColumn === column && sortOrder === "ASC" ? "DESC" : "ASC";
+            sortColumn = column;
+            currentPage = 1;
+            showMedicines();
+        });
+        document.getElementById("pages").addEventListener("click", function (event) {
+            var button = event.target.closest("[data-page]");
+            if (!button) return;
+            currentPage = Number(button.getAttribute("data-page"));
+            showMedicines();
+        });
+
+        AppAuth.start(function () {
+            AppAuth.watch("medicines", function (rows, error) {
+                loaded = true;
+                AppAuth.showDataError(error);
+                medicines = rows;
+                showMedicines();
+            });
+        });
+    </script>
 </body>
-
 </html>

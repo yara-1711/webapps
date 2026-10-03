@@ -1,667 +1,214 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Manager</title>
-
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet">
-
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
-    <!-- FirebaseUI CSS -->
-    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css">
-
-</head>
-
-
-<body class="bg-base-200 min-h-screen">
-
-    <!-- FirebaseUI will appear here -->
-    <div id="firebaseui-auth-container"></div>
-
-    <!-- Firebase -->
+    <link rel="stylesheet" href="css/auth.css">
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase.js"></script>
+</head>
+<body class="bg-base-200 min-h-screen">
+    <div id="appRoot" hidden>
+        <div class="navbar bg-primary text-primary-content shadow-lg flex-wrap gap-2">
+            <div class="flex-1 min-w-0">
+                <h1 class="text-xl sm:text-2xl font-bold px-3 sm:px-4 truncate">👥 Employee Manager</h1>
+            </div>
+            <div class="px-2" id="sessionSlot"></div>
+        </div>
 
-    <!-- FirebaseUI -->
-    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
+        <div class="max-w-6xl mx-auto p-4 sm:p-5">
+            <div class="mb-4">
+                <a href="index.html" class="btn btn-soft btn-secondary rounded-full shadow-md px-4 sm:px-6">
+                    <span>←</span> Back to My Projects <span>💗</span>
+                </a>
+            </div>
 
+            <div class="text-center py-6 sm:py-8">
+                <h1 class="text-3xl sm:text-4xl font-bold">Employee Dashboard</h1>
+                <p class="text-base-content/60 mt-2">Add and manage your employees</p>
+            </div>
+
+            <div class="stats shadow w-full mb-6">
+                <div class="stat">
+                    <div class="stat-figure text-primary text-3xl">👥</div>
+                    <div class="stat-title">Total Employees</div>
+                    <div id="employeeCount" class="stat-value text-primary">0</div>
+                </div>
+            </div>
+
+            <div class="card bg-base-100 shadow-xl mb-8">
+                <div class="card-body p-4 sm:p-8">
+                    <h2 class="card-title text-2xl">➕ Add Employee</h2>
+                    <div class="divider"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <span class="label-text font-semibold mb-1 block">Full Name</span>
+                            <input id="name" placeholder="Enter full name" class="input input-bordered w-full">
+                        </div>
+                        <div>
+                            <span class="label-text font-semibold mb-1 block">🎂 Date of Birth</span>
+                            <input id="dob" type="date" class="input input-bordered w-full">
+                        </div>
+                        <div>
+                            <span class="label-text font-semibold mb-1 block">Gender</span>
+                            <select id="gender" class="select select-bordered w-full">
+                                <option value="">Select Gender</option>
+                                <option>Male</option>
+                                <option>Female</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span class="label-text font-semibold mb-1 block">📅 Date of Joining</span>
+                            <input id="joining" type="date" class="input input-bordered w-full">
+                        </div>
+                        <div>
+                            <span class="label-text font-semibold mb-1 block">💼 Position</span>
+                            <input id="position" placeholder="e.g. Manager" class="input input-bordered w-full">
+                        </div>
+                        <div>
+                            <span class="label-text font-semibold mb-1 block">🏢 Department</span>
+                            <input id="department" placeholder="e.g. Finance" class="input input-bordered w-full">
+                        </div>
+                        <div>
+                            <span class="label-text font-semibold mb-1 block">⭐ Experience</span>
+                            <input id="experience" type="number" placeholder="Years" class="input input-bordered w-full">
+                        </div>
+                        <div>
+                            <span class="label-text font-semibold mb-1 block">💰 Salary</span>
+                            <input id="salary" type="number" step="5000" min="0" placeholder="Salary" class="input input-bordered w-full">
+                        </div>
+                        <div>
+                            <span class="label-text font-semibold mb-1 block">🩸 Blood Group</span>
+                            <input id="blood" placeholder="e.g. O+" class="input input-bordered w-full">
+                        </div>
+                        <div>
+                            <span class="label-text font-semibold mb-1 block">📧 Email</span>
+                            <input id="email" type="email" placeholder="example@email.com" class="input input-bordered w-full">
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="label-text font-semibold mb-1 block">🏠 Address</span>
+                            <input id="address" placeholder="Enter address" class="input input-bordered w-full">
+                        </div>
+                    </div>
+                    <button id="addEmployee" type="button" class="btn btn-primary btn-lg mt-5 w-full">➕ Add Employee</button>
+                </div>
+            </div>
+
+            <div class="card bg-base-100 shadow mb-6">
+                <div class="card-body p-4 sm:p-8">
+                    <h2 class="card-title">🔎 Search Employees</h2>
+                    <input id="search" placeholder="Search by name..." class="input input-bordered w-full">
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-bold mb-4">👤 Employees</h2>
+            <div id="employeeList" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+        </div>
+    </div>
 
     <script>
+        var employees = [];
 
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDeuGSD-woWghVhKkQKqjr1meBtaKwrB8I",
-            authDomain: "rhea-apps-1711.firebaseapp.com",
-            projectId: "rhea-apps-1711",
-            storageBucket: "rhea-apps-1711.firebasestorage.app",
-            messagingSenderId: "752009231762",
-            appId: "1:752009231762:web:a701fe1c11fa029fd6154b",
-            measurementId: "G-GPEK776WM8"
-        };
-
-        // Start Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // Create FirebaseUI
-        const ui = new firebaseui.auth.AuthUI(firebase.auth());
-
-        // Login options
-        const uiConfig = {
-            signInOptions: [
-                firebase.auth.GoogleAuthProvider.PROVIDER_ID
-            ],
-
-            signInSuccessUrl: "home.html",
-
-            signInSuccessWithAuthResult: function(authResult) {
-                console.log("User signed in:", authResult.user);
-
-                    return false;
-                }
-        };
-
-        // Show FirebaseUI
-        ui.start("#firebaseui-auth-container", uiConfig);
-
-    </script>
-
-    <div class="p-6">
-
-        <a href="index.html" class="btn btn-soft btn-secondary rounded-full
-                  shadow-md hover:shadow-xl
-                  hover:-translate-y-1
-                  transition-all duration-300
-                  px-6">
-
-            <span class="text-lg">←</span>
-            Back to My Projects
-            <span>💗</span>
-
-        </a>
-
-        <!-- Your project starts here -->
-
-    </div>
-
-
-    <!-- NAVBAR -->
-
-    <div class="navbar bg-primary text-primary-content shadow-lg">
-
-        <div class="flex-1">
-
-            <h1 class="text-2xl font-bold px-4">
-                👥 Employee Manager
-            </h1>
-
-        </div>
-
-    </div>
-
-
-    <div class="max-w-6xl mx-auto p-5">
-
-
-        <!-- HEADER -->
-
-        <div class="text-center py-8">
-
-            <h1 class="text-4xl font-bold">
-                Employee Dashboard
-            </h1>
-
-            <p class="text-base-content/60 mt-2">
-                Add and manage your employees
-            </p>
-
-        </div>
-
-
-        <!-- EMPLOYEE COUNT -->
-
-        <div class="stats shadow w-full mb-6">
-
-            <div class="stat">
-
-                <div class="stat-figure text-primary text-3xl">
-                    👥
-                </div>
-
-                <div class="stat-title">
-                    Total Employees
-                </div>
-
-                <div id="employeeCount" class="stat-value text-primary">
-                    0
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- FORM -->
-
-        <div class="card bg-base-100 shadow-xl mb-8">
-
-            <div class="card-body">
-
-                <h2 class="card-title text-2xl">
-                    ➕ Add Employee
-                </h2>
-
-                <div class="divider"></div>
-
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-
-                    <!-- NAME -->
-
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-semibold">
-                                Full Name
-                            </span>
-                        </label>
-
-                        <input id="name" placeholder="Enter full name" class="input input-bordered w-full">
-                    </div>
-
-
-                    <!-- DATE OF BIRTH -->
-
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-semibold">
-                                🎂 Date of Birth
-                            </span>
-                        </label>
-
-                        <input id="dob" type="date" class="input input-bordered w-full">
-                    </div>
-
-
-                    <!-- GENDER -->
-
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-semibold">
-                                Gender
-                            </span>
-                        </label>
-
-                        <select id="gender" class="select select-bordered w-full">
-
-                            <option value="">
-                                Select Gender
-                            </option>
-
-                            <option>Male</option>
-                            <option>Female</option>
-
-                        </select>
-                    </div>
-
-
-                    <!-- DATE OF JOINING -->
-
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-semibold">
-                                📅 Date of Joining
-                            </span>
-                        </label>
-
-                        <input id="joining" type="date" class="input input-bordered w-full">
-                    </div>
-
-
-                    <!-- POSITION -->
-
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-semibold">
-                                💼 Position
-                            </span>
-                        </label>
-
-                        <input id="position" placeholder="e.g. Manager" class="input input-bordered w-full">
-                    </div>
-
-
-                    <!-- DEPARTMENT -->
-
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-semibold">
-                                🏢 Department
-                            </span>
-                        </label>
-
-                        <input id="department" placeholder="e.g. Finance" class="input input-bordered w-full">
-                    </div>
-
-
-                    <!-- EXPERIENCE -->
-
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-semibold">
-                                ⭐ Experience
-                            </span>
-                        </label>
-
-                        <input id="experience" type="number" placeholder="Years" class="input input-bordered w-full">
-                    </div>
-
-
-                    <!-- SALARY -->
-
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-semibold">
-                                💰 Salary
-                            </span>
-                        </label>
-
-                        <input id="salary" type="number" step="5000" min="0" placeholder="Salary"
-                            class="input input-bordered w-full">
-                    </div>
-
-
-                    <!-- BLOOD GROUP -->
-
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-semibold">
-                                🩸 Blood Group
-                            </span>
-                        </label>
-
-                        <input id="blood" placeholder="e.g. O+" class="input input-bordered w-full">
-                    </div>
-
-
-                    <!-- EMAIL -->
-
-                    <div>
-                        <label class="label">
-                            <span class="label-text font-semibold">
-                                📧 Email
-                            </span>
-                        </label>
-
-                        <input id="email" type="email" placeholder="example@email.com"
-                            class="input input-bordered w-full">
-                    </div>
-
-
-                    <!-- ADDRESS -->
-
-                    <div class="md:col-span-2">
-
-                        <label class="label">
-                            <span class="label-text font-semibold">
-                                🏠 Address
-                            </span>
-                        </label>
-
-                        <input id="address" placeholder="Enter address" class="input input-bordered w-full">
-
-                    </div>
-
-
-                </div>
-
-
-                <button onclick="addEmployee()" class="btn btn-primary btn-lg mt-5 w-full">
-
-                    ➕ Add Employee
-
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- SEARCH -->
-
-        <div class="card bg-base-100 shadow mb-6">
-
-            <div class="card-body">
-
-                <h2 class="card-title">
-                    🔎 Search Employees
-                </h2>
-
-                <input id="search" onkeyup="searchEmployees()" placeholder="Search by name..."
-                    class="input input-bordered w-full">
-
-            </div>
-
-        </div>
-
-
-        <!-- EMPLOYEE LIST -->
-
-        <h2 class="text-2xl font-bold mb-4">
-            👤 Employees
-        </h2>
-
-
-        <div id="employeeList" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        </div>
-
-
-    </div>
-
-
-    <script>
-
-        let employees = [];
-
-
-        // ADD EMPLOYEE
-
-        function addEmployee() {
-
-            let name =
-                document.getElementById("name").value;
-
-
-            if (name == "") {
-
-                alert("Please enter the employee name!");
-
-                return;
-
-            }
-
-
-            let employee = {
-
-                name: name,
-
-                dob:
-                    document.getElementById("dob").value,
-
-                gender:
-                    document.getElementById("gender").value,
-
-                joining:
-                    document.getElementById("joining").value,
-
-                position:
-                    document.getElementById("position").value,
-
-                department:
-                    document.getElementById("department").value,
-
-                experience:
-                    document.getElementById("experience").value,
-
-                salary:
-                    document.getElementById("salary").value,
-
-                blood:
-                    document.getElementById("blood").value,
-
-                email:
-                    document.getElementById("email").value,
-
-                address:
-                    document.getElementById("address").value
-
-            };
-
-
-            employees.push(employee);
-
-
-            localStorage.setItem(
-                "employees",
-                JSON.stringify(employees)
-            );
-
-
-            showEmployees();
-
-            clearForm();
-
+        function field(id) {
+            return document.getElementById(id).value.trim();
         }
 
-
-        // SHOW EMPLOYEES
-
-        function showEmployees() {
-
-            let list =
-                document.getElementById("employeeList");
-
-            list.innerHTML = "";
-
-
-            employees.forEach(function (employee, index) {
-
-                list.innerHTML += `
-
-        <div class="card bg-base-100 shadow-xl">
-
-            <div class="card-body">
-
-                <div class="flex justify-between">
-
-                    <div>
-
-                        <h2 class="card-title text-2xl">
-                            ${employee.name}
-                        </h2>
-
-                        <p class="text-primary">
-                            ${employee.position}
-                        </p>
-
-                    </div>
-
-                    <div class="badge badge-secondary">
-                        ${employee.department}
-                    </div>
-
-                </div>
-
-
-                <div class="divider"></div>
-
-
-                <div class="grid grid-cols-2 gap-3">
-
-                    <div class="bg-base-200 p-3 rounded-box">
-
-                        <small>Date of Birth</small>
-
-                        <p>🎂 ${employee.dob}</p>
-
-                    </div>
-
-
-                    <div class="bg-base-200 p-3 rounded-box">
-
-                        <small>Date of Joining</small>
-
-                        <p>📅 ${employee.joining}</p>
-
-                    </div>
-
-
-                    <div class="bg-base-200 p-3 rounded-box">
-
-                        <small>Salary</small>
-
-                        <p>💰 ₹${employee.salary}</p>
-
-                    </div>
-
-
-                    <div class="bg-base-200 p-3 rounded-box">
-
-                        <small>Experience</small>
-
-                        <p>⭐ ${employee.experience} years</p>
-
-                    </div>
-
-
-                    <div class="bg-base-200 p-3 rounded-box">
-
-                        <small>Gender</small>
-
-                        <p>👤 ${employee.gender}</p>
-
-                    </div>
-
-
-                    <div class="bg-base-200 p-3 rounded-box">
-
-                        <small>Blood Group</small>
-
-                        <p>🩸 ${employee.blood}</p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="mt-4 text-sm">
-
-                    📧 ${employee.email}
-
-                    <br><br>
-
-                    🏠 ${employee.address}
-
-                </div>
-
-
-                <button
-                    onclick="deleteEmployee(${index})"
-                    class="btn btn-error btn-sm mt-4">
-
-                    🗑️ Delete
-
-                </button>
-
-            </div>
-
-        </div>
-
-        `;
-
-            });
-
-
-            document.getElementById("employeeCount").innerText =
-                employees.length;
-
+        function text(value) {
+            var clean = AppAuth.escape(value);
+            return clean === "" ? "—" : clean;
         }
-
-
-        // DELETE
-
-        function deleteEmployee(index) {
-
-            employees.splice(index, 1);
-
-            localStorage.setItem(
-                "employees",
-                JSON.stringify(employees)
-            );
-
-            showEmployees();
-
-        }
-
-
-        // SEARCH
-
-        function searchEmployees() {
-
-            let search =
-                document.getElementById("search").value.toLowerCase();
-
-            let cards =
-                document.getElementById("employeeList").children;
-
-
-            for (let i = 0; i < cards.length; i++) {
-
-                let name =
-                    employees[i].name.toLowerCase();
-
-
-                if (name.includes(search)) {
-
-                    cards[i].style.display = "";
-
-                } else {
-
-                    cards[i].style.display = "none";
-
-                }
-
-            }
-
-        }
-
-
-        // CLEAR FORM
 
         function clearForm() {
-
-            document.getElementById("name").value = "";
-
-            document.getElementById("dob").value = "";
-
-            document.getElementById("gender").value = "";
-
-            document.getElementById("joining").value = "";
-
-            document.getElementById("position").value = "";
-
-            document.getElementById("department").value = "";
-
-            document.getElementById("experience").value = "";
-
-            document.getElementById("salary").value = "";
-
-            document.getElementById("blood").value = "";
-
-            document.getElementById("email").value = "";
-
-            document.getElementById("address").value = "";
-
+            ["name", "dob", "gender", "joining", "position", "department", "experience", "salary", "blood", "email", "address"].forEach(function (id) {
+                document.getElementById(id).value = "";
+            });
         }
 
+        function showEmployees() {
+            var query = document.getElementById("search").value.trim().toLowerCase();
+            var list = document.getElementById("employeeList");
+            var visible = employees.filter(function (employee) {
+                return (employee.name || "").toLowerCase().indexOf(query) !== -1;
+            });
 
-        // LOAD SAVED EMPLOYEES
+            document.getElementById("employeeCount").textContent = String(employees.length);
 
-        let saved =
-            localStorage.getItem("employees");
+            if (visible.length === 0) {
+                list.innerHTML = '<div class="card bg-base-100 shadow-xl md:col-span-2"><div class="card-body text-center text-base-content/60">No employees to show yet.</div></div>';
+                return;
+            }
 
-
-        if (saved != null) {
-
-            employees = JSON.parse(saved);
-
-            showEmployees();
-
+            list.innerHTML = visible.map(function (employee) {
+                return '<div class="card bg-base-100 shadow-xl">' +
+                    '<div class="card-body p-4 sm:p-6">' +
+                    '<div class="flex flex-wrap justify-between gap-2">' +
+                    '<div class="min-w-0">' +
+                    '<h2 class="card-title text-xl sm:text-2xl break-words">' + text(employee.name) + '</h2>' +
+                    '<p class="text-primary break-words">' + text(employee.position) + '</p>' +
+                    '</div>' +
+                    '<div class="badge badge-secondary max-w-full h-auto py-2 whitespace-normal">' + text(employee.department) + '</div>' +
+                    '</div>' +
+                    '<div class="divider my-2"></div>' +
+                    '<div class="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3">' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Date of Birth</small><p class="break-words">🎂 ' + text(employee.dob) + '</p></div>' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Date of Joining</small><p class="break-words">📅 ' + text(employee.joining) + '</p></div>' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Salary</small><p class="break-words">💰 ₹' + text(employee.salary) + '</p></div>' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Experience</small><p class="break-words">⭐ ' + text(employee.experience) + ' years</p></div>' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Gender</small><p class="break-words">👤 ' + text(employee.gender) + '</p></div>' +
+                    '<div class="bg-base-200 p-3 rounded-box"><small>Blood Group</small><p class="break-words">🩸 ' + text(employee.blood) + '</p></div>' +
+                    '</div>' +
+                    '<div class="mt-4 text-sm break-words">📧 ' + text(employee.email) + '<br><br>🏠 ' + text(employee.address) + '</div>' +
+                    '<button type="button" class="btn btn-error btn-sm mt-4 w-full sm:w-auto" data-id="' + AppAuth.escape(employee.id) + '">🗑️ Delete</button>' +
+                    '</div></div>';
+            }).join("");
         }
 
+        function addEmployee() {
+            var name = field("name");
+            if (!name) {
+                alert("Please enter the employee name!");
+                return;
+            }
+            AppAuth.add("employees", {
+                name: name,
+                dob: field("dob"),
+                gender: document.getElementById("gender").value,
+                joining: field("joining"),
+                position: field("position"),
+                department: field("department"),
+                experience: field("experience"),
+                salary: field("salary"),
+                blood: field("blood"),
+                email: field("email"),
+                address: field("address")
+            }).then(clearForm).catch(function (error) {
+                AppAuth.showDataError(error);
+            });
+        }
+
+        document.getElementById("addEmployee").addEventListener("click", addEmployee);
+        document.getElementById("search").addEventListener("input", showEmployees);
+        document.getElementById("employeeList").addEventListener("click", function (event) {
+            var button = event.target.closest("[data-id]");
+            if (!button) return;
+            if (!confirm("Delete this employee?")) return;
+            AppAuth.remove("employees", button.getAttribute("data-id")).catch(function (error) {
+                AppAuth.showDataError(error);
+            });
+        });
+
+        AppAuth.start(function () {
+            AppAuth.watch("employees", function (rows, error) {
+                AppAuth.showDataError(error);
+                employees = rows;
+                showEmployees();
+            });
+        });
     </script>
-
 </body>
-
 </html>
-```

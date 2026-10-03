@@ -1,1630 +1,389 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Book Tracker</title>
-
-
-    <!-- SQL.js -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-
-
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/responsive.css">
     <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
+        * { box-sizing: border-box; }
 
         body {
-
             font-family: Arial, sans-serif;
-
-            background: linear-gradient(
-                135deg,
-                #eee8ff,
-                #fdf8ef
-            );
-
+            background: linear-gradient(135deg, #eee8ff, #fdf8ef);
             min-height: 100vh;
-
             margin: 0;
-
-            padding: 40px 20px;
-
+            padding: 28px 16px 40px;
             color: #3f3b4d;
         }
 
-
-        .box {
-
-            max-width: 1100px;
-
-            margin: auto;
-        }
-
-
-        /* Title */
+        .box { max-width: 1100px; margin: auto; }
 
         h1 {
-
             text-align: center;
-
             color: #63539b;
-
             font-size: 38px;
-
-            font-weight: bold;
-
-            margin-bottom: 8px;
+            margin: 0 0 8px;
         }
-
 
         .subtitle {
-
             text-align: center;
-
             color: #817b91;
-
-            margin-bottom: 30px;
+            margin: 0 0 30px;
         }
 
-
-        /* Add book card */
-
-        .form {
-
+        .form, .table-box {
             background: white;
-
             padding: 25px;
-
             border-radius: 20px;
-
-            box-shadow:
-                0 8px 25px
-                rgba(99, 83, 155, 0.12);
-
+            box-shadow: 0 8px 25px rgba(99, 83, 155, 0.12);
             margin-bottom: 25px;
         }
 
+        .form h2 { margin-top: 0; color: #63539b; }
 
-        .form h2 {
-
-            margin-top: 0;
-
-            color: #63539b;
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
         }
 
-
-        input,
-        select {
-
+        input, select {
             padding: 12px;
-
-            margin: 5px;
-
             border: 1px solid #ddd6ed;
-
             border-radius: 10px;
-
             background: #faf9ff;
-
             color: #454052;
-
             outline: none;
+            font-size: 16px;
         }
 
-
-        input:focus,
-        select:focus {
-
-            border-color: #8b79c7;
-        }
-
-
-        input {
-
-            width: 220px;
-        }
-
-
-        select {
-
-            cursor: pointer;
-        }
-
-
-        /* Buttons */
+        input { width: min(220px, 100%); }
+        select { width: max-content; min-width: 11.5rem; max-width: 100%; white-space: nowrap; }
+        input:focus, select:focus { border-color: #8b79c7; }
 
         button {
-
             padding: 11px 17px;
-
-            margin: 5px;
-
             border: none;
-
             border-radius: 10px;
-
             cursor: pointer;
-
             color: white;
-
             background: #7564b5;
-
             font-weight: bold;
-
-            transition: 0.2s;
         }
 
-
-        button:hover {
-
-            transform: translateY(-2px);
-
-            opacity: 0.9;
-        }
-
-
-        .add-button {
-
-            background: #7564b5;
-
-            padding: 12px 22px;
-        }
-
-
-        .edit {
-
-            background: #70a887;
-        }
-
-
-        .delete {
-
-            background: #d96b6b;
-        }
-
-
-        /* Filter */
+        button:hover { opacity: 0.92; }
+        .edit { background: #70a887; }
+        .delete { background: #d96b6b; }
+        .export-button { background: #8b79c7; }
 
         .filter-box {
-
             margin-top: 20px;
-
             padding-top: 15px;
-
             border-top: 1px solid #eee9f5;
         }
 
+        .filter-box label { font-weight: bold; color: #63539b; }
 
-        .filter-box label {
+        .table-box { padding: 10px; overflow-x: auto; }
 
-            font-weight: bold;
-
-            color: #63539b;
-        }
-
-
-        /* Export */
-
-        .export-button {
-
-            background: #8b79c7;
-        }
-
-
-        .export-button:hover {
-
-            background: #6f5bab;
-        }
-
-
-        /* Table */
-
-        .table-box {
-
-            background: white;
-
-            border-radius: 20px;
-
-            padding: 10px;
-
-            box-shadow:
-                0 8px 25px
-                rgba(99, 83, 155, 0.12);
-
-            overflow-x: auto;
-        }
-
-
-        table {
-
-            width: 100%;
-
-            border-collapse: collapse;
-
-            min-width: 700px;
-        }
-
+        table { width: 100%; border-collapse: collapse; }
 
         th {
-
             background: #7564b5;
-
             color: white;
-
             padding: 15px;
-
             cursor: pointer;
+            white-space: nowrap;
         }
 
-
-        th:first-child {
-
-            border-radius: 12px 0 0 12px;
-        }
-
-
-        th:last-child {
-
-            border-radius: 0 12px 12px 0;
-        }
-
+        th:first-child { border-radius: 12px 0 0 12px; }
+        th:last-child { border-radius: 0 12px 12px 0; }
 
         td {
-
             padding: 15px 10px;
-
             text-align: center;
-
-            border-bottom:
-                1px solid #eeeaf4;
+            border-bottom: 1px solid #eeeaf4;
         }
 
+        tr:hover { background: #faf8ff; }
 
-        tr:hover {
-
-            background: #faf8ff;
-        }
-
-
-        /* Status */
-
-        .status {
-
-            padding: 6px 12px;
-
+        span.pill {
+            padding: 6px 12px !important;
             border-radius: 20px;
-
             font-size: 13px;
-
             font-weight: bold;
-
             display: inline-block;
+            width: auto !important;
+            height: auto !important;
+            line-height: 1.2;
+            white-space: nowrap;
         }
 
+        td.status-cell, th.status-col { white-space: nowrap; }
 
-        .want {
-
-            background: #eee7ff;
-
-            color: #7057a9;
-        }
-
-
-        .reading {
-
-            background: #fff1d8;
-
-            color: #b47720;
-        }
-
-
-        .finished {
-
-            background: #e2f4e8;
-
-            color: #4c8a62;
-        }
-
-
-        /* Pages */
+        .want { background: #eee7ff; color: #7057a9; }
+        .reading { background: #fff1d8; color: #b47720; }
+        .finished { background: #e2f4e8; color: #4c8a62; }
 
         #pages {
-
-            text-align: center;
-
-            margin-top: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
         }
 
+        #pages button { background: #a394d2; min-width: 40px; width: auto; }
+        .empty { text-align: center; padding: 30px; color: #9992a5; }
+        .action-buttons { display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
 
-        #pages button {
-
-            background: #a394d2;
-
-            min-width: 40px;
+        @media (max-width: 720px) {
+            body { padding: 16px 12px 28px; }
+            h1 { font-size: 28px; }
+            .subtitle { font-size: 14px; margin-bottom: 20px; }
+            .form { padding: 18px; }
+            .controls, .filter-box .controls { display: grid; }
+            input, select, .form button, .export-button { width: 100%; min-width: 0; }
+            #pages button, .edit, .delete { width: auto; }
         }
-
-
-        #pages button:hover {
-
-            background: #7564b5;
-        }
-
-
-        /* Empty message */
-
-        .empty {
-
-            text-align: center;
-
-            padding: 30px;
-
-            color: #9992a5;
-        }
-
-
-        /* Mobile */
-
-        @media (max-width: 600px) {
-
-
-            body {
-
-                padding: 20px 12px;
-            }
-
-
-            h1 {
-
-                font-size: 30px;
-            }
-
-
-            .subtitle {
-
-                font-size: 14px;
-
-                margin-bottom: 20px;
-            }
-
-
-            .form {
-
-                padding: 18px;
-
-                border-radius: 16px;
-            }
-
-
-            .form h2 {
-
-                font-size: 21px;
-            }
-
-
-            input,
-            select {
-
-                width: 100%;
-
-                margin: 6px 0;
-
-                padding: 13px;
-            }
-
-
-            button {
-
-                width: 100%;
-
-                margin: 6px 0;
-
-                padding: 13px;
-            }
-
-
-            .filter-box {
-
-                margin-top: 15px;
-            }
-
-
-            .filter-box label {
-
-                display: block;
-
-                margin-bottom: 5px;
-            }
-
-
-            .table-box {
-
-                padding: 5px;
-
-                border-radius: 16px;
-            }
-
-
-            th,
-            td {
-
-                padding: 12px 8px;
-
-                font-size: 14px;
-            }
-
-
-            .edit,
-            .delete {
-
-                width: auto;
-
-                padding: 8px 12px;
-
-                margin: 2px;
-            }
-
-
-            .status {
-
-                font-size: 12px;
-
-                padding: 5px 8px;
-            }
-
-        }
-
     </style>
-    <link
-    href="https://cdn.jsdelivr.net/npm/daisyui@5"
-    rel="stylesheet">
-
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/records.js"></script>
 </head>
-
-
 <body>
+    <div id="appRoot" hidden>
+        <div class="box">
+            <div class="top-bar">
+                <a href="index.html" class="btn btn-soft btn-secondary rounded-full px-6 shadow-md">← Back to My Projects 💗</a>
+                <div id="sessionSlot"></div>
+            </div>
 
-<button
-    onclick="window.location.href='index.html'"
-    class="btn btn-soft btn-secondary
-           rounded-full
-           px-6
-           shadow-md
-           hover:shadow-lg
-           hover:-translate-y-1
-           transition-all duration-300">
+            <h1>♡ My Book Tracker ♡</h1>
+            <p class="subtitle">Keep track of all the stories you're reading ✨</p>
 
-    ← Back to My Projects 💗
+            <div class="form">
+                <h2>➕ Add a Book</h2>
+                <div class="controls">
+                    <input id="title" type="text" placeholder="Book title">
+                    <input id="author" type="text" placeholder="Author">
+                    <select id="status" aria-label="Reading status">
+                        <option value="Want to Read">Want&nbsp;to&nbsp;Read</option>
+                        <option value="Reading">Reading</option>
+                        <option value="Finished">Finished</option>
+                    </select>
+                    <select id="rating" aria-label="Rating">
+                        <option value="0">No Rating</option>
+                        <option value="1">⭐</option>
+                        <option value="2">⭐⭐</option>
+                        <option value="3">⭐⭐⭐</option>
+                        <option value="4">⭐⭐⭐⭐</option>
+                        <option value="5">⭐⭐⭐⭐⭐</option>
+                    </select>
+                    <button class="add-button" id="addBook" type="button">Add Book</button>
+                </div>
 
-</button>
+                <div class="filter-box">
+                    <div class="controls">
+                        <label for="filter">📖 Show:</label>
+                        <select id="filter">
+                            <option value="All">All Books</option>
+                            <option value="Want to Read">Want&nbsp;to&nbsp;Read</option>
+                            <option value="Reading">Reading</option>
+                            <option value="Finished">Finished</option>
+                        </select>
+                        <button class="export-button" id="exportCsv" type="button">↓ Export to CSV</button>
+                    </div>
+                </div>
+            </div>
 
-
-
-
-<div class="box">
-
-
-    <!-- Title -->
-
-    <h1>♡ My Book Tracker ♡</h1>
-
-
-    <p class="subtitle">
-
-        Keep track of all the stories you're reading ✨
-
-    </p>
-
-
-
-    <!-- Add Book -->
-
-    <div class="form">
-
-
-        <h2>➕ Add a Book</h2>
-
-
-        <input
-            id="title"
-            type="text"
-            placeholder="Book title"
-        >
-
-
-        <input
-            id="author"
-            type="text"
-            placeholder="Author"
-        >
-
-
-        <select id="status">
-
-            <option value="Want to Read">
-                Want to Read
-            </option>
-
-            <option value="Reading">
-                Reading
-            </option>
-
-            <option value="Finished">
-                Finished
-            </option>
-
-        </select>
-
-
-        <select id="rating">
-
-            <option value="0">
-                No Rating
-            </option>
-
-            <option value="1">
-                ⭐
-            </option>
-
-            <option value="2">
-                ⭐⭐
-            </option>
-
-            <option value="3">
-                ⭐⭐⭐
-            </option>
-
-            <option value="4">
-                ⭐⭐⭐⭐
-            </option>
-
-            <option value="5">
-                ⭐⭐⭐⭐⭐
-            </option>
-
-        </select>
-
-
-        <button
-            class="add-button"
-            onclick="addBook()">
-
-            Add Book
-
-        </button>
-
-
-
-        <!-- Filter -->
-
-        <div class="filter-box">
-
-
-            <label>📖 Show:</label>
-
-
-            <select
-                id="filter"
-                onchange="showBooks()">
-
-                <option value="All">
-                    All Books
-                </option>
-
-                <option value="Want to Read">
-                    Want to Read
-                </option>
-
-                <option value="Reading">
-                    Reading
-                </option>
-
-                <option value="Finished">
-                    Finished
-                </option>
-
-            </select>
-
-
-            <button
-                class="export-button"
-                onclick="exportCSV()">
-
-                ↓ Export to CSV
-
-            </button>
-
-
+            <div class="table-box">
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-sort="title">Title ↕️</th>
+                            <th data-sort="author">Author ↕️</th>
+                            <th class="status-col" data-sort="status">Status ↕️</th>
+                            <th data-sort="rating">Rating ↕️</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookList"></tbody>
+                </table>
+            </div>
+            <div id="pages"></div>
         </div>
-
     </div>
 
+    <script>
+        var books = [];
+        var currentPage = 1;
+        var sortColumn = "title";
+        var sortOrder = "ASC";
+        var perPage = 20;
+        var loaded = false;
 
-
-    <!-- Books table -->
-
-    <div class="table-box">
-
-
-        <table>
-
-
-            <thead>
-
-                <tr>
-
-                    <th onclick="sortBooks('title')">
-                        Title ↕️
-                    </th>
-
-                    <th onclick="sortBooks('author')">
-                        Author ↕️
-                    </th>
-
-                    <th onclick="sortBooks('status')">
-                        Status ↕️
-                    </th>
-
-                    <th onclick="sortBooks('rating')">
-                        Rating ↕️
-                    </th>
-
-                    <th>
-                        Actions
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody id="bookList">
-
-            </tbody>
-
-
-        </table>
-
-    </div>
-
-
-
-    <!-- Pages -->
-
-    <div id="pages"></div>
-
-
-</div>
-
-
-
-<script>
-
-
-    let db = null;
-
-    let currentPage = 1;
-
-    let sortColumn = "title";
-
-    let sortOrder = "ASC";
-
-    const booksPerPage = 20;
-
-
-
-    /*
-        SAVE DATABASE TO LOCAL STORAGE
-    */
-
-    function saveDatabase() {
-
-        let data = db.export();
-
-        let dataString = "";
-
-        for (let i = 0; i < data.length; i++) {
-
-            dataString +=
-                String.fromCharCode(data[i]);
-
+        function stars(rating) {
+            var count = Number(rating) || 0;
+            return count > 0 ? "⭐".repeat(count) : "—";
         }
 
-        let base64 =
-            btoa(dataString);
+        function statusClass(status) {
+            if (status === "Want to Read") return "want";
+            if (status === "Reading") return "reading";
+            return "finished";
+        }
 
-        localStorage.setItem(
-            "myBookTracker",
-            base64
-        );
+        function statusLabel(status) {
+            return AppAuth.escape(status).replace(/ /g, "&nbsp;");
+        }
 
-    }
+        function showBooks() {
+            var filter = document.getElementById("filter").value;
+            var visible = books.filter(function (book) {
+                return filter === "All" || book.status === filter;
+            });
+            visible = Records.sortBy(visible, sortColumn, sortOrder);
+            var view = Records.paginate(visible, currentPage, perPage);
+            currentPage = view.page || 1;
 
-
-
-    /*
-        LOAD DATABASE FROM LOCAL STORAGE
-    */
-
-    function loadDatabase(SQL) {
-
-        let savedData =
-            localStorage.getItem(
-                "myBookTracker"
-            );
-
-
-        if (savedData) {
-
-            let binary =
-                atob(savedData);
-
-            let data =
-                new Uint8Array(
-                    binary.length
-                );
-
-
-            for (
-                let i = 0;
-                i < binary.length;
-                i++
-            ) {
-
-                data[i] =
-                    binary.charCodeAt(i);
-
+            var list = document.getElementById("bookList");
+            if (!loaded) {
+                list.innerHTML = '<tr><td colspan="5" class="empty">Loading your books…</td></tr>';
+                return;
+            }
+            if (view.rows.length === 0) {
+                list.innerHTML = '<tr><td colspan="5" class="empty">♡ No books here yet!</td></tr>';
+            } else {
+                list.innerHTML = view.rows.map(function (book) {
+                    return '<tr>' +
+                        '<td data-label="Title"><strong>' + AppAuth.escape(book.title) + '</strong></td>' +
+                        '<td data-label="Author">' + AppAuth.escape(book.author) + '</td>' +
+                        '<td class="status-cell" data-label="Status"><span class="pill ' + statusClass(book.status) + '">' + statusLabel(book.status) + '</span></td>' +
+                        '<td data-label="Rating">' + stars(book.rating) + '</td>' +
+                        '<td class="actions" data-label="Actions"><span class="action-buttons">' +
+                        '<button class="edit" type="button" data-action="edit" data-id="' + AppAuth.escape(book.id) + '">Edit</button>' +
+                        '<button class="delete" type="button" data-action="delete" data-id="' + AppAuth.escape(book.id) + '">Delete</button>' +
+                        '</span></td></tr>';
+                }).join("");
             }
 
-
-            db =
-                new SQL.Database(data);
-
-        }
-
-        else {
-
-            db =
-                new SQL.Database();
-
-
-            db.run(`
-
-                CREATE TABLE books (
-
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-                    title TEXT,
-
-                    author TEXT,
-
-                    status TEXT,
-
-                    rating INTEGER
-
-                )
-
-            `);
-
-
-            saveDatabase();
-
-        }
-
-
-        showBooks();
-
-    }
-
-
-
-    /*
-        START SQL.JS
-    */
-
-    initSqlJs({
-
-        locateFile: function(file) {
-
-            return "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/" + file;
-
-        }
-
-    }).then(function(SQL) {
-
-        loadDatabase(SQL);
-
-    });
-
-
-
-    /*
-        ADD BOOK
-    */
-
-    function addBook() {
-
-
-        if (db == null) {
-
-            alert(
-                "Please wait for the book tracker to load."
-            );
-
-            return;
-
-        }
-
-
-        let title =
-            document.getElementById(
-                "title"
-            ).value.trim();
-
-
-        let author =
-            document.getElementById(
-                "author"
-            ).value.trim();
-
-
-        let status =
-            document.getElementById(
-                "status"
-            ).value;
-
-
-        let rating =
-            document.getElementById(
-                "rating"
-            ).value;
-
-
-
-        if (
-            title == "" ||
-            author == ""
-        ) {
-
-            alert(
-                "Please enter the title and author."
-            );
-
-            return;
-
-        }
-
-
-
-        db.run(
-
-            `INSERT INTO books
-            (title, author, status, rating)
-            VALUES (?, ?, ?, ?)`,
-
-            [
-                title,
-                author,
-                status,
-                rating
-            ]
-
-        );
-
-
-        /*
-            SAVE AFTER ADDING
-        */
-
-        saveDatabase();
-
-
-
-        document.getElementById(
-            "title"
-        ).value = "";
-
-
-        document.getElementById(
-            "author"
-        ).value = "";
-
-
-        document.getElementById(
-            "rating"
-        ).value = "0";
-
-
-        currentPage = 1;
-
-
-        showBooks();
-
-    }
-
-
-
-    /*
-        SHOW BOOKS
-    */
-
-    function showBooks() {
-
-
-        if (db == null) {
-
-            return;
-
-        }
-
-
-        let filter =
-            document.getElementById(
-                "filter"
-            ).value;
-
-
-        let query =
-            "SELECT * FROM books";
-
-
-        let values = [];
-
-
-
-        if (filter != "All") {
-
-            query +=
-                " WHERE status = ?";
-
-            values.push(filter);
-
-        }
-
-
-
-        query +=
-            " ORDER BY "
-            + sortColumn
-            + " "
-            + sortOrder;
-
-
-
-        let result =
-            db.exec(
-                query,
-                values
-            );
-
-
-        let books = [];
-
-
-
-        if (result.length > 0) {
-
-            books =
-                result[0].values;
-
-        }
-
-
-
-        let start =
-            (currentPage - 1)
-            * booksPerPage;
-
-
-        let end =
-            start + booksPerPage;
-
-
-        let pageBooks =
-            books.slice(
-                start,
-                end
-            );
-
-
-        let list =
-            document.getElementById(
-                "bookList"
-            );
-
-
-        list.innerHTML = "";
-
-
-
-        if (
-            pageBooks.length == 0
-        ) {
-
-            list.innerHTML = `
-
-                <tr>
-
-                    <td
-                        colspan="5"
-                        class="empty">
-
-                        ♡ No books here yet!
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
-
-
-
-        pageBooks.forEach(
-            function(book) {
-
-
-                let id = book[0];
-
-                let title = book[1];
-
-                let author = book[2];
-
-                let status = book[3];
-
-                let rating = book[4];
-
-
-
-                /*
-                    MAKE STARS
-                */
-
-                let stars = "";
-
-
-                for (
-                    let i = 0;
-                    i < rating;
-                    i++
-                ) {
-
-                    stars += "⭐";
-
-                }
-
-
-
-                /*
-                    STATUS COLOUR
-                */
-
-                let statusClass = "";
-
-
-                if (
-                    status ==
-                    "Want to Read"
-                ) {
-
-                    statusClass =
-                        "want";
-
-                }
-
-                else if (
-                    status ==
-                    "Reading"
-                ) {
-
-                    statusClass =
-                        "reading";
-
-                }
-
-                else {
-
-                    statusClass =
-                        "finished";
-
-                }
-
-
-
-                /*
-                    ADD ROW
-                */
-
-                list.innerHTML += `
-
-                    <tr>
-
-                        <td>
-
-                            <strong>
-                                ${title}
-                            </strong>
-
-                        </td>
-
-
-                        <td>
-                            ${author}
-                        </td>
-
-
-                        <td>
-
-                            <span
-                                class="status ${statusClass}">
-
-                                ${status}
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            ${stars || "—"}
-
-                        </td>
-
-
-                        <td>
-
-                            <button
-                                class="edit"
-                                onclick="editBook(${id})">
-
-                                Edit
-
-                            </button>
-
-
-                            <button
-                                class="delete"
-                                onclick="deleteBook(${id})">
-
-                                Delete
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-                `;
-
+            var pages = document.getElementById("pages");
+            pages.innerHTML = "";
+            for (var i = 1; i <= view.totalPages; i++) {
+                pages.innerHTML += '<button type="button" data-page="' + i + '">' + i + '</button>';
             }
-        );
-
-
-        makePages(
-            books.length
-        );
-
-    }
-
-
-
-    /*
-        EDIT BOOK
-    */
-
-    function editBook(id) {
-
-
-        let result =
-            db.exec(
-                "SELECT * FROM books WHERE id = ?",
-                [id]
-            );
-
-
-        if (
-            result.length == 0
-        ) {
-
-            return;
-
         }
 
-
-        let book =
-            result[0].values[0];
-
-
-
-        let title =
-            prompt(
-                "Book title:",
-                book[1]
-            );
-
-
-        if (title == null) {
-
-            return;
-
+        function addBook() {
+            var title = document.getElementById("title").value.trim();
+            var author = document.getElementById("author").value.trim();
+            var status = document.getElementById("status").value;
+            var rating = Number(document.getElementById("rating").value);
+            if (!title || !author) {
+                alert("Please enter the title and author.");
+                return;
+            }
+            AppAuth.add("books", {
+                title: title,
+                author: author,
+                status: status,
+                rating: rating
+            }).then(function () {
+                document.getElementById("title").value = "";
+                document.getElementById("author").value = "";
+                document.getElementById("rating").value = "0";
+                currentPage = 1;
+            }).catch(function (error) {
+                AppAuth.showDataError(error);
+            });
         }
 
-
-
-        let author =
-            prompt(
-                "Author:",
-                book[2]
-            );
-
-
-        if (author == null) {
-
-            return;
-
+        function editBook(id) {
+            var book = books.find(function (item) { return item.id === id; });
+            if (!book) return;
+            var title = prompt("Book title:", book.title || "");
+            if (title == null) return;
+            var author = prompt("Author:", book.author || "");
+            if (author == null) return;
+            var status = prompt("Status (Want to Read / Reading / Finished):", book.status || "Want to Read");
+            if (status == null) return;
+            var rating = prompt("Rating from 0 to 5:", book.rating == null ? "0" : book.rating);
+            if (rating == null) return;
+            AppAuth.update("books", id, {
+                title: title.trim(),
+                author: author.trim(),
+                status: status.trim(),
+                rating: Number(rating) || 0
+            }).catch(function (error) {
+                AppAuth.showDataError(error);
+            });
         }
 
-
-
-        let status =
-            prompt(
-                "Status (Want to Read / Reading / Finished):",
-                book[3]
-            );
-
-
-        if (status == null) {
-
-            return;
-
+        function deleteBook(id) {
+            if (!confirm("Delete this book?")) return;
+            AppAuth.remove("books", id).catch(function (error) {
+                AppAuth.showDataError(error);
+            });
         }
 
-
-
-        let rating =
-            prompt(
-                "Rating from 0 to 5:",
-                book[4]
-            );
-
-
-        if (rating == null) {
-
-            return;
-
+        function exportCsv() {
+            if (books.length === 0) {
+                alert("There are no books to export!");
+                return;
+            }
+            Records.downloadCsv("my-books.csv", ["Title", "Author", "Status", "Rating"], books.map(function (book) {
+                return [book.title, book.author, book.status, book.rating];
+            }));
         }
 
-
-
-        db.run(
-
-            `UPDATE books
-
-             SET title = ?,
-                 author = ?,
-                 status = ?,
-                 rating = ?
-
-             WHERE id = ?`,
-
-            [
-                title,
-                author,
-                status,
-                rating,
-                id
-            ]
-
-        );
-
-
-
-        /*
-            SAVE AFTER EDIT
-        */
-
-        saveDatabase();
-
-
-        showBooks();
-
-    }
-
-
-
-    /*
-        DELETE BOOK
-    */
-
-    function deleteBook(id) {
-
-
-        let answer =
-            confirm(
-                "Delete this book?"
-            );
-
-
-        if (answer) {
-
-
-            db.run(
-
-                "DELETE FROM books WHERE id = ?",
-
-                [id]
-
-            );
-
-
-            /*
-                SAVE AFTER DELETE
-            */
-
-            saveDatabase();
-
-
+        document.getElementById("addBook").addEventListener("click", addBook);
+        document.getElementById("exportCsv").addEventListener("click", exportCsv);
+        document.getElementById("filter").addEventListener("change", function () {
+            currentPage = 1;
             showBooks();
-
-        }
-
-    }
-
-
-
-    /*
-        SORT BOOKS
-    */
-
-    function sortBooks(column) {
-
-
-        if (
-            sortColumn == column
-        ) {
-
-
-            if (
-                sortOrder == "ASC"
-            ) {
-
-                sortOrder =
-                    "DESC";
-
+        });
+        document.querySelector("thead").addEventListener("click", function (event) {
+            var header = event.target.closest("[data-sort]");
+            if (!header) return;
+            var column = header.getAttribute("data-sort");
+            if (sortColumn === column) {
+                sortOrder = sortOrder === "ASC" ? "DESC" : "ASC";
+            } else {
+                sortColumn = column;
+                sortOrder = "ASC";
             }
-
-            else {
-
-                sortOrder =
-                    "ASC";
-
-            }
-
-        }
-
-        else {
-
-            sortColumn =
-                column;
-
-            sortOrder =
-                "ASC";
-
-        }
-
-
-        currentPage = 1;
-
-
-        showBooks();
-
-    }
-
-
-
-    /*
-        MAKE PAGE BUTTONS
-    */
-
-    function makePages(totalBooks) {
-
-
-        let totalPages =
-            Math.ceil(
-                totalBooks /
-                booksPerPage
-            );
-
-
-        let pages =
-            document.getElementById(
-                "pages"
-            );
-
-
-        pages.innerHTML = "";
-
-
-
-        for (
-            let i = 1;
-            i <= totalPages;
-            i++
-        ) {
-
-
-            pages.innerHTML += `
-
-                <button
-                    onclick="goToPage(${i})">
-
-                    ${i}
-
-                </button>
-
-            `;
-
-        }
-
-    }
-
-
-
-    /*
-        CHANGE PAGE
-    */
-
-    function goToPage(page) {
-
-
-        currentPage = page;
-
-
-        showBooks();
-
-    }
-
-
-
-    /*
-        EXPORT TO CSV
-    */
-
-    function exportCSV() {
-
-
-        if (db == null) {
-
-            alert(
-                "Please wait for the book tracker to load."
-            );
-
-            return;
-
-        }
-
-
-        let result =
-            db.exec(
-                `SELECT title, author, status, rating
-                 FROM books`
-            );
-
-
-
-        if (
-            result.length == 0
-        ) {
-
-            alert(
-                "There are no books to export!"
-            );
-
-            return;
-
-        }
-
-
-
-        let books =
-            result[0].values;
-
-
-        let csv =
-            "Title,Author,Status,Rating\n";
-
-
-
-        books.forEach(
-            function(book) {
-
-
-                let title =
-                    book[0];
-
-                let author =
-                    book[1];
-
-                let status =
-                    book[2];
-
-                let rating =
-                    book[3];
-
-
-
-                csv +=
-                    '"' +
-                    title +
-                    '",' +
-
-                    '"' +
-                    author +
-                    '",' +
-
-                    '"' +
-                    status +
-                    '",' +
-
-                    rating +
-                    "\n";
-
-            }
-        );
-
-
-
-        let file =
-            new Blob(
-
-                [csv],
-
-                {
-                    type:
-                        "text/csv"
-                }
-
-            );
-
-
-
-        let link =
-            document.createElement(
-                "a"
-            );
-
-
-        link.href =
-            URL.createObjectURL(
-                file
-            );
-
-
-        link.download =
-            "my-books.csv";
-
-
-        link.click();
-
-    }
-
-
-</script>
-
-
+            currentPage = 1;
+            showBooks();
+        });
+        document.getElementById("bookList").addEventListener("click", function (event) {
+            var button = event.target.closest("[data-action]");
+            if (!button) return;
+            var id = button.getAttribute("data-id");
+            if (button.getAttribute("data-action") === "edit") editBook(id);
+            if (button.getAttribute("data-action") === "delete") deleteBook(id);
+        });
+        document.getElementById("pages").addEventListener("click", function (event) {
+            var button = event.target.closest("[data-page]");
+            if (!button) return;
+            currentPage = Number(button.getAttribute("data-page"));
+            showBooks();
+        });
+
+        AppAuth.start(function () {
+            AppAuth.watch("books", function (rows, error) {
+                loaded = true;
+                AppAuth.showDataError(error);
+                books = rows;
+                showBooks();
+            });
+        });
+    </script>
 </body>
-
 </html>
