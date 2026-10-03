@@ -214,8 +214,37 @@
         }
     }
 
+    function isLobby() {
+        return document.body && document.body.getAttribute("data-lobby") === "home";
+    }
+
+    function paintLobby(signedIn) {
+        if (!isLobby()) {
+            return;
+        }
+        document.body.classList.toggle("is-signed-in", !!signedIn);
+        var login = document.getElementById("loginScreen");
+        var app = document.getElementById("appRoot");
+        if (login) {
+            login.hidden = true;
+        }
+        if (app) {
+            app.hidden = false;
+        }
+        if (!signedIn) {
+            var slot = document.getElementById("sessionSlot");
+            if (slot) {
+                slot.innerHTML = "";
+            }
+        }
+    }
+
     function showLogin() {
         setChecking(false);
+        if (isLobby()) {
+            paintLobby(false);
+            return;
+        }
         var login = document.getElementById("loginScreen");
         var app = document.getElementById("appRoot");
         if (login) {
@@ -228,13 +257,17 @@
 
     function showApp(user) {
         setChecking(false);
-        var login = document.getElementById("loginScreen");
-        var app = document.getElementById("appRoot");
-        if (login) {
-            login.hidden = true;
-        }
-        if (app) {
-            app.hidden = false;
+        if (isLobby()) {
+            paintLobby(true);
+        } else {
+            var login = document.getElementById("loginScreen");
+            var app = document.getElementById("appRoot");
+            if (login) {
+                login.hidden = true;
+            }
+            if (app) {
+                app.hidden = false;
+            }
         }
         renderSession(user);
         if (!appStarted && typeof readyCallback === "function") {
@@ -277,7 +310,7 @@
         }
 
         bindGoogleButton();
-        if (document.getElementById("loginScreen")) {
+        if (isLobby() || document.getElementById("loginScreen")) {
             return;
         }
 
@@ -292,7 +325,7 @@
             '<p class="login-kicker">Google account</p>' +
             "<h1>Sign in to continue</h1>" +
             "<p>Sign in with Google to open <strong>" + escapeHtml(pageName) + "</strong>. " +
-            "Your lists stay in your account, and the pages stay hidden until you are signed in.</p>" +
+            "Your lists stay with this Google account.</p>" +
             '<button type="button" class="google-button" id="googleSignInButton">' +
             '<svg viewBox="0 0 48 48" aria-hidden="true" width="18" height="18">' +
             '<path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/>' +
@@ -300,7 +333,7 @@
             '<path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.3 35.1 26.8 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>' +
             '<path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.2-3.5 5.7-6.6 7.1l6.3 5.3C37.4 38.4 44 34 44 24c0-1.2-.1-2.3-.4-3.5z"/>' +
             "</svg>" +
-            "Continue with Google" +
+            "Sign in with Google" +
             "</button>" +
             '<p id="authError" class="auth-error" hidden></p>' +
             (onIndex ? "" : '<a class="login-back" href="index.html">← All projects</a>') +
@@ -309,21 +342,25 @@
         bindGoogleButton();
     }
 
+    function googleButtons() {
+        return Array.prototype.slice.call(document.querySelectorAll(".google-button"));
+    }
+
     function bindGoogleButton() {
-        var button = document.getElementById("googleSignInButton");
-        if (!button || button.getAttribute("data-bound") === "1") {
-            return;
-        }
-        button.setAttribute("data-bound", "1");
-        button.addEventListener("click", signInWithGoogle);
+        googleButtons().forEach(function (button) {
+            if (button.getAttribute("data-bound") === "1") {
+                return;
+            }
+            button.setAttribute("data-bound", "1");
+            button.addEventListener("click", signInWithGoogle);
+        });
     }
 
     function signInWithGoogle() {
         showAuthError("");
-        var button = document.getElementById("googleSignInButton");
-        if (button) {
+        googleButtons().forEach(function (button) {
             button.disabled = true;
-        }
+        });
         var provider = new firebase.auth.GoogleAuthProvider();
         provider.setCustomParameters({ prompt: "select_account" });
         auth.signInWithPopup(provider).catch(function (error) {
@@ -334,9 +371,9 @@
         }).catch(function (error) {
             showAuthError(friendlyAuthError(error));
         }).finally(function () {
-            if (button) {
+            googleButtons().forEach(function (button) {
                 button.disabled = false;
-            }
+            });
         });
     }
 

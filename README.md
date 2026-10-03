@@ -1,6 +1,6 @@
 # My Projects
 
-Small browser apps for books, employees, students, medicines, screen time, gym training, and a SQL demo. Every page stays hidden until you sign in with Google. Saved lists live in Cloud Firestore, one collection per signed-in person.
+Small browser apps for books, employees, students, medicines, screen time, gym training, and a SQL demo. The home page shows the app names and the dashboard next to Google sign-in. Each app’s records stay hidden until you sign in. Saved lists live in Cloud Firestore, one collection per signed-in person.
 
 Google sign-in and Firestore share one Firebase project, `techcoderlabz-project`. That is the project where Cloud Firestore is enabled.
 
@@ -12,7 +12,7 @@ From this folder:
 python3 -m http.server 43123
 ```
 
-Open [http://127.0.0.1:43123](http://127.0.0.1:43123). Sign in on the home page, then open a project. Signing out on any page returns you to the Google sign-in screen.
+Open [http://127.0.0.1:43123](http://127.0.0.1:43123). The home page shows every app beside Sign in with Google. Signing in on any page opens that app. Signing out returns you to its Google sign-in screen.
 
 ## Firebase setup
 

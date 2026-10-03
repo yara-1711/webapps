@@ -22,6 +22,7 @@
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
     <script src="js/firebase.js"></script>
+    <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
     <div id="loginScreen" class="login-screen" hidden>
@@ -29,7 +30,7 @@
             <p class="login-kicker">Google account</p>
             <h1>Sign in with Google</h1>
             <p>Sign in to see this account. The same Google sign-in is used by every project, and their lists are stored in Cloud Firestore.</p>
-            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
+            <button type="button" class="google-button" id="googleSignInButton">Sign in with Google</button>
             <p id="authError" class="auth-error" hidden></p>
             <a class="login-back" href="index.html">← All projects</a>
         </div>
@@ -37,7 +38,7 @@
     <div id="appRoot" hidden>
         <div class="box">
             <div class="top-bar">
-                <a href="index.html">← All projects</a>
+                <a href="index.html" class="back-link">All projects</a>
                 <div id="sessionSlot"></div>
             </div>
             <div class="card">

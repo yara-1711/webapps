@@ -95,6 +95,7 @@
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
     <script src="js/firebase.js"></script>
     <script src="js/records.js"></script>
+    <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
     <div id="loginScreen" class="login-screen" hidden>
@@ -102,7 +103,7 @@
             <p class="login-kicker">Google account</p>
             <h1>Sign in with Google</h1>
             <p>This tracker stays hidden until you sign in. Medicines are saved in Cloud Firestore for your Google account.</p>
-            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
+            <button type="button" class="google-button" id="googleSignInButton">Sign in with Google</button>
             <p id="authError" class="auth-error" hidden></p>
             <a class="login-back" href="index.html">← All projects</a>
         </div>
@@ -110,13 +111,13 @@
     <div id="appRoot" hidden>
         <div class="box">
             <div class="top-bar">
-                <a href="index.html" class="btn btn-soft btn-secondary rounded-full px-6 shadow-md">← Back to My Projects 💗</a>
+                <a href="index.html" class="back-link">All projects</a>
                 <div id="sessionSlot"></div>
             </div>
-            <h1>♡ My Medicine Tracker ♡</h1>
+            <h1>Medicine Tracker</h1>
             <p class="subtitle">Keep track of medicines, doses, and when to take them ✨</p>
             <div class="form">
-                <h2>➕ Add a Medicine</h2>
+                <h2>Add a medicine</h2>
                 <div class="controls">
                     <input id="name" type="text" placeholder="Medicine name">
                     <input id="dosage" type="text" placeholder="Dosage (e.g. 500mg)">
@@ -198,7 +199,7 @@
                 return;
             }
             if (view.rows.length === 0) {
-                list.innerHTML = '<tr><td colspan="5" class="empty">♡ No medicines here yet!</td></tr>';
+                list.innerHTML = '<tr><td colspan="5" class="empty">No medicines yet.</td></tr>';
             } else {
                 list.innerHTML = view.rows.map(function (item) {
                     return '<tr>' +
