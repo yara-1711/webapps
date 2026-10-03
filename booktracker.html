@@ -158,6 +158,16 @@
     <script src="js/records.js"></script>
 </head>
 <body>
+    <div id="loginScreen" class="login-screen" hidden>
+        <div class="login-card">
+            <p class="login-kicker">Google account</p>
+            <h1>Sign in with Google</h1>
+            <p>The book tracker stays hidden until you sign in. Books are saved in Cloud Firestore for your Google account, not in this browser.</p>
+            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
+            <p id="authError" class="auth-error" hidden></p>
+            <a class="login-back" href="index.html">← All projects</a>
+        </div>
+    </div>
     <div id="appRoot" hidden>
         <div class="box">
             <div class="top-bar">
@@ -166,7 +176,7 @@
             </div>
 
             <h1>♡ My Book Tracker ♡</h1>
-            <p class="subtitle">Keep track of all the stories you're reading ✨</p>
+            <p class="subtitle">Keep track of all the stories you're reading. Every book is saved in Cloud Firestore.</p>
 
             <div class="form">
                 <h2>➕ Add a Book</h2>
@@ -222,6 +232,14 @@
     </div>
 
     <script>
+        function booksCollection() {
+            var user = firebase.auth().currentUser;
+            if (!user) {
+                throw new Error("Sign in with Google before saving books.");
+            }
+            return firebase.firestore().collection("users").doc(user.uid).collection("books");
+        }
+
         var books = [];
         var currentPage = 1;
         var sortColumn = "title";
@@ -290,11 +308,12 @@
                 alert("Please enter the title and author.");
                 return;
             }
-            AppAuth.add("books", {
+            booksCollection().add({
                 title: title,
                 author: author,
                 status: status,
-                rating: rating
+                rating: rating,
+                createdAt: Date.now()
             }).then(function () {
                 document.getElementById("title").value = "";
                 document.getElementById("author").value = "";
@@ -316,7 +335,7 @@
             if (status == null) return;
             var rating = prompt("Rating from 0 to 5:", book.rating == null ? "0" : book.rating);
             if (rating == null) return;
-            AppAuth.update("books", id, {
+            booksCollection().doc(id).update({
                 title: title.trim(),
                 author: author.trim(),
                 status: status.trim(),
@@ -328,7 +347,7 @@
 
         function deleteBook(id) {
             if (!confirm("Delete this book?")) return;
-            AppAuth.remove("books", id).catch(function (error) {
+            booksCollection().doc(id).delete().catch(function (error) {
                 AppAuth.showDataError(error);
             });
         }
@@ -377,10 +396,17 @@
         });
 
         AppAuth.start(function () {
-            AppAuth.watch("books", function (rows, error) {
+            booksCollection().onSnapshot(function (snap) {
+                loaded = true;
+                AppAuth.showDataError(null);
+                books = snap.docs.map(function (doc) {
+                    return Object.assign({ id: doc.id }, doc.data());
+                });
+                showBooks();
+            }, function (error) {
                 loaded = true;
                 AppAuth.showDataError(error);
-                books = rows;
+                books = [];
                 showBooks();
             });
         });

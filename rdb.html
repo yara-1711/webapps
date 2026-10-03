@@ -9,31 +9,48 @@
     <link rel="stylesheet" href="css/auth.css">
     <link rel="stylesheet" href="css/responsive.css">
     <style>
-        body { margin: 0; padding: 24px 16px 40px; background: #f4f7ff; font-family: Arial, sans-serif; }
-        .box { max-width: 720px; margin: auto; }
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 24px 16px 40px; background: #f4f7ff; font-family: Arial, sans-serif; color: #243056; }
+        .box { max-width: 720px; margin: auto; width: 100%; }
         h1 { color: #2456c5; margin-bottom: 8px; }
         p { color: #52607a; }
-        .table-box {
+        .form, .table-box {
             background: white;
             border-radius: 16px;
-            padding: 12px;
+            padding: 16px;
             box-shadow: 0 8px 24px rgba(36, 86, 197, 0.12);
-            overflow-x: auto;
+            margin-top: 16px;
         }
+        .fields { display: grid; grid-template-columns: 1fr 120px auto; gap: 8px; }
+        input, button { font: inherit; padding: 12px; border-radius: 10px; }
+        input { border: 1px solid #d5def5; width: 100%; font-size: 16px; }
+        button { border: none; background: #2456c5; color: white; font-weight: bold; cursor: pointer; }
+        .delete { background: #e11d48; }
         table { width: 100%; border-collapse: collapse; }
         th { background: #2456c5; color: white; padding: 12px; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #e6ebf5; }
+        .empty { text-align: center; color: #7d89a8; }
         @media (max-width: 720px) {
             h1 { font-size: 28px; }
+            .fields { grid-template-columns: 1fr; }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js"></script>
     <script src="js/firebase.js"></script>
 </head>
 <body>
+    <div id="loginScreen" class="login-screen" hidden>
+        <div class="login-card">
+            <p class="login-kicker">Google account</p>
+            <h1>Sign in with Google</h1>
+            <p>The database page stays hidden until you sign in. Rows are saved in Cloud Firestore for your Google account.</p>
+            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
+            <p id="authError" class="auth-error" hidden></p>
+            <a class="login-back" href="index.html">← All projects</a>
+        </div>
+    </div>
     <div id="appRoot" hidden>
         <div class="box">
             <div class="top-bar">
@@ -41,52 +58,102 @@
                 <div id="sessionSlot"></div>
             </div>
             <h1>🗄️ Database</h1>
-            <p>This page runs a small SQL example in the browser. The student rows below come from that query, and the page stays hidden until you sign in with Google.</p>
+            <p>Add student rows here. They are stored in Cloud Firestore, not in a browser database.</p>
+            <form class="form" id="studentForm">
+                <div class="fields">
+                    <input id="studentName" placeholder="Name" required>
+                    <input id="studentAge" type="number" min="1" placeholder="Age" required>
+                    <button type="submit">Add row</button>
+                </div>
+            </form>
             <div class="table-box">
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Name</th>
                             <th>Age</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody id="sqlRows">
-                        <tr><td colspan="3">Running the query…</td></tr>
+                        <tr><td class="empty" colspan="3">Loading rows from Firestore…</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
     <script>
-        function renderRows(values) {
+        function databaseCollection() {
+            var user = firebase.auth().currentUser;
+            if (!user) throw new Error("Sign in with Google before saving rows.");
+            return firebase.firestore().collection("users").doc(user.uid).collection("databaseStudents");
+        }
+
+        var rows = [];
+        var seeded = false;
+
+        function renderRows() {
             var body = document.getElementById("sqlRows");
-            body.innerHTML = values.map(function (row) {
+            if (rows.length === 0) {
+                body.innerHTML = '<tr><td class="empty" colspan="3">No rows yet.</td></tr>';
+                return;
+            }
+            body.innerHTML = rows.map(function (row) {
                 return "<tr>" +
-                    '<td data-label="ID">' + AppAuth.escape(row[0]) + "</td>" +
-                    '<td data-label="Name">' + AppAuth.escape(row[1]) + "</td>" +
-                    '<td data-label="Age">' + AppAuth.escape(row[2]) + "</td>" +
+                    '<td data-label="Name">' + AppAuth.escape(row.name) + "</td>" +
+                    '<td data-label="Age">' + AppAuth.escape(row.age) + "</td>" +
+                    '<td data-label="Actions"><button class="delete" type="button" data-id="' + AppAuth.escape(row.id) + '">Delete</button></td>' +
                     "</tr>";
             }).join("");
         }
 
-        AppAuth.start(function () {
-            initSqlJs({
-                locateFile: function (file) {
-                    return "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/" + file;
-                }
-            }).then(function (SQL) {
-                var db = new SQL.Database();
-                db.run("CREATE TABLE students (id INTEGER, name TEXT, age INTEGER);");
-                db.run("INSERT INTO students VALUES (1, 'Rhea', 14), (2, 'Aarav', 15);");
-                var result = db.exec("SELECT * FROM students");
-                console.log(result);
-                if (result.length > 0) {
-                    renderRows(result[0].values);
-                }
+        document.getElementById("studentForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var name = document.getElementById("studentName").value.trim();
+            var age = Number(document.getElementById("studentAge").value);
+            if (!name || !age) {
+                alert("Please enter a name and age.");
+                return;
+            }
+            databaseCollection().add({
+                name: name,
+                age: age,
+                createdAt: Date.now()
+            }).then(function () {
+                document.getElementById("studentForm").reset();
             }).catch(function (error) {
-                document.getElementById("sqlRows").innerHTML =
-                    '<tr><td colspan="3">' + AppAuth.escape(error.message || "Could not start SQL.") + "</td></tr>";
+                AppAuth.showDataError(error);
+            });
+        });
+
+        document.getElementById("sqlRows").addEventListener("click", function (event) {
+            var button = event.target.closest("[data-id]");
+            if (!button) return;
+            if (!confirm("Delete this row?")) return;
+            databaseCollection().doc(button.getAttribute("data-id")).delete().catch(function (error) {
+                AppAuth.showDataError(error);
+            });
+        });
+
+        AppAuth.start(function () {
+            databaseCollection().onSnapshot(function (snap) {
+                rows = snap.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); });
+                rows.sort(function (a, b) { return String(a.name || "").localeCompare(String(b.name || "")); });
+                if (rows.length === 0 && !seeded) {
+                    seeded = true;
+                    var batch = firebase.firestore().batch();
+                    var col = databaseCollection();
+                    [{ name: "Rhea", age: 14 }, { name: "Aarav", age: 15 }].forEach(function (row) {
+                        batch.set(col.doc(), { name: row.name, age: row.age, createdAt: Date.now() });
+                    });
+                    batch.commit().catch(function (error) { AppAuth.showDataError(error); });
+                    renderRows();
+                    return;
+                }
+                AppAuth.showDataError(null);
+                renderRows();
+            }, function (error) {
+                AppAuth.showDataError(error);
             });
         });
     </script>

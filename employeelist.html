@@ -13,6 +13,16 @@
     <script src="js/firebase.js"></script>
 </head>
 <body class="bg-base-200 min-h-screen">
+    <div id="loginScreen" class="login-screen" hidden>
+        <div class="login-card">
+            <p class="login-kicker">Google account</p>
+            <h1>Sign in with Google</h1>
+            <p>The employee list stays hidden until you sign in. Employees are saved in Cloud Firestore for your Google account, not in this browser.</p>
+            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
+            <p id="authError" class="auth-error" hidden></p>
+            <a class="login-back" href="index.html">← All projects</a>
+        </div>
+    </div>
     <div id="appRoot" hidden>
         <div class="navbar bg-primary text-primary-content shadow-lg flex-wrap gap-2">
             <div class="flex-1 min-w-0">
@@ -30,7 +40,7 @@
 
             <div class="text-center py-6 sm:py-8">
                 <h1 class="text-3xl sm:text-4xl font-bold">Employee Dashboard</h1>
-                <p class="text-base-content/60 mt-2">Add and manage your employees</p>
+                <p class="text-base-content/60 mt-2">Add and manage your employees. Every record is saved in Cloud Firestore.</p>
             </div>
 
             <div class="stats shadow w-full mb-6">
@@ -112,6 +122,14 @@
     </div>
 
     <script>
+        function employeesCollection() {
+            var user = firebase.auth().currentUser;
+            if (!user) {
+                throw new Error("Sign in with Google before saving employees.");
+            }
+            return firebase.firestore().collection("users").doc(user.uid).collection("employees");
+        }
+
         var employees = [];
 
         function field(id) {
@@ -174,7 +192,7 @@
                 alert("Please enter the employee name!");
                 return;
             }
-            AppAuth.add("employees", {
+            employeesCollection().add({
                 name: name,
                 dob: field("dob"),
                 gender: document.getElementById("gender").value,
@@ -185,7 +203,8 @@
                 salary: field("salary"),
                 blood: field("blood"),
                 email: field("email"),
-                address: field("address")
+                address: field("address"),
+                createdAt: Date.now()
             }).then(clearForm).catch(function (error) {
                 AppAuth.showDataError(error);
             });
@@ -197,15 +216,21 @@
             var button = event.target.closest("[data-id]");
             if (!button) return;
             if (!confirm("Delete this employee?")) return;
-            AppAuth.remove("employees", button.getAttribute("data-id")).catch(function (error) {
+            employeesCollection().doc(button.getAttribute("data-id")).delete().catch(function (error) {
                 AppAuth.showDataError(error);
             });
         });
 
         AppAuth.start(function () {
-            AppAuth.watch("employees", function (rows, error) {
+            employeesCollection().onSnapshot(function (snap) {
+                AppAuth.showDataError(null);
+                employees = snap.docs.map(function (doc) {
+                    return Object.assign({ id: doc.id }, doc.data());
+                });
+                showEmployees();
+            }, function (error) {
                 AppAuth.showDataError(error);
-                employees = rows;
+                employees = [];
                 showEmployees();
             });
         });

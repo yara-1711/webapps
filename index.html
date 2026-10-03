@@ -13,6 +13,15 @@
     <script src="js/firebase.js"></script>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100">
+    <div id="loginScreen" class="login-screen" hidden>
+        <div class="login-card">
+            <p class="login-kicker">Google account</p>
+            <h1>Sign in with Google</h1>
+            <p>Sign in to open your projects. Each app saves its lists in Cloud Firestore for this Google account.</p>
+            <button type="button" class="google-button" id="googleSignInButton">Continue with Google</button>
+            <p id="authError" class="auth-error" hidden></p>
+        </div>
+    </div>
     <div id="appRoot" hidden>
         <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
             <div class="top-bar mb-8">

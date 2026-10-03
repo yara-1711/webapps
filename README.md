@@ -36,5 +36,8 @@ Data is stored at:
 - `users/{uid}/gymExercises`
 - `users/{uid}/gymCalories`
 - `users/{uid}/gymDiet`
+- `users/{uid}/databaseStudents`
 
-The database demo still runs SQL in the browser. It does not save those sample rows.
+Opening an app copies any older browser-only lists into Firestore once, then deletes those browser copies. New employees, books, students, medicines, screen time, gym logs, and database rows are written only to Firestore.
+
+If Google sign-in says the site is not authorized, add the host (including `yara-1711.github.io` for GitHub Pages) under Authentication → Settings → Authorized domains.
