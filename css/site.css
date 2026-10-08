@@ -183,11 +183,18 @@ body.is-signed-in .signed-out-copy { display: none; }
 body.is-signed-in .signed-in-copy { display: block; }
 body.is-signed-in .google-button { display: none !important; }
 
+body[data-lobby="home"] { position: relative; }
+
+body[data-lobby="home"] .hero,
+body[data-lobby="home"] .dashboard,
+body[data-lobby="home"] .site-footer {
+    max-width: 1000px;
+}
+
 .plant-scape {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 0;
-    overflow: hidden;
     pointer-events: none;
 }
 
@@ -199,21 +206,33 @@ body[data-lobby="home"] #appRoot {
 .plant {
     position: absolute;
     display: block;
+    height: auto;
     pointer-events: none;
     user-select: none;
+    filter: drop-shadow(0 14px 18px rgba(30, 51, 48, 0.12));
 }
 
-.plant-top {
-    width: min(420px, 36vw);
-    top: -180px;
-    right: -130px;
+/* Width is the open margin beside the desk, so the leaf is complete
+   and stays off the type. */
+.leaf-a,
+.leaf-b,
+.leaf-c,
+.leaf-d,
+.leaf-e,
+.leaf-f,
+.leaf-g,
+.leaf-h {
+    width: min(230px, calc((100% - 1000px) / 2 - 30px));
 }
 
-.plant-bottom {
-    width: min(440px, 38vw);
-    left: -240px;
-    bottom: -180px;
-}
+.leaf-a { top: 92px; right: 18px; }
+.leaf-b { left: 16px; bottom: 24px; }
+.leaf-c { right: 20px; top: 460px; }
+.leaf-d { left: 18px; top: 430px; }
+.leaf-e { right: 16px; bottom: 36px; }
+.leaf-f { left: 22px; top: 120px; }
+.leaf-g { left: 20px; top: 820px; }
+.leaf-h { right: 22px; top: 760px; }
 
 .dashboard {
     max-width: 1120px;
@@ -429,6 +448,33 @@ th {
     .app-card.wide { grid-column: span 6; }
 }
 
+@media (max-width: 1199px) {
+    .leaf-a,
+    .leaf-c,
+    .leaf-d,
+    .leaf-f {
+        display: none;
+    }
+
+    body[data-lobby="home"] .site-footer {
+        padding-bottom: 168px;
+    }
+
+    .leaf-b,
+    .leaf-e,
+    .leaf-g,
+    .leaf-h {
+        width: 112px;
+        top: auto;
+        bottom: 18px;
+    }
+
+    .leaf-b { left: 14px; right: auto; }
+    .leaf-g { left: 30%; right: auto; }
+    .leaf-h { left: auto; right: 30%; }
+    .leaf-e { left: auto; right: 14px; }
+}
+
 @media (max-width: 800px) {
     .site-header {
         padding: 14px 16px;
@@ -455,8 +501,38 @@ th {
 
     .header-actions { flex-wrap: wrap; }
 
-    .plant-top { width: 150px; top: -70px; right: -78px; }
-    .plant-bottom { width: 150px; left: -90px; bottom: -70px; }
+    .hero .eyebrow,
+    .hero h1 {
+        padding-right: 76px;
+    }
+
+    body[data-lobby="home"] .site-footer {
+        padding-bottom: 132px;
+    }
+
+    .leaf-g,
+    .leaf-h {
+        display: none;
+    }
+
+    .leaf-a {
+        display: block;
+        width: 64px;
+        top: 78px;
+        right: 12px;
+        bottom: auto;
+        left: auto;
+    }
+
+    .leaf-b,
+    .leaf-e {
+        width: 96px;
+        top: auto;
+        bottom: 12px;
+    }
+
+    .leaf-b { left: 10px; }
+    .leaf-e { right: 10px; }
 }
 
 @media (max-width: 720px) {

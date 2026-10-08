@@ -363,38 +363,34 @@
         });
     }
 
-    function prefersRedirect() {
-        var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-        var ua = navigator.userAgent || "";
-        return !!coarse || /Android|iPhone|iPad|iPod|Mobile|FBAN|FBAV|Instagram/i.test(ua);
-    }
-
     function signInWithGoogle() {
         showAuthError("");
+        var provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope("email");
+        provider.addScope("profile");
+        // Popup on every device, including phones. A full-page redirect fails in
+        // mobile Chrome and Safari because this site cannot share storage with
+        // the Firebase auth domain.
+        var attempt = auth.signInWithPopup(provider);
         googleButtons().forEach(function (button) {
             button.disabled = true;
         });
-        var provider = new firebase.auth.GoogleAuthProvider();
-        var attempt = prefersRedirect()
-            ? auth.signInWithRedirect(provider)
-            : auth.signInWithPopup(provider).catch(function (error) {
-                var code = error && error.code;
-                if (code === "auth/popup-blocked" || code === "auth/operation-not-supported-in-this-environment" || code === "auth/cancelled-popup-request") {
-                    return auth.signInWithRedirect(provider);
-                }
-                if (code === "auth/popup-closed-by-user") {
-                    return new Promise(function (resolve) {
-                        setTimeout(function () {
-                            if (!auth.currentUser) {
-                                showAuthError(friendlyAuthError(error));
-                            }
-                            resolve();
-                        }, 700);
-                    });
-                }
-                showAuthError(friendlyAuthError(error));
-            });
-        Promise.resolve(attempt).catch(function (error) {
+        attempt.catch(function (error) {
+            var code = error && error.code;
+            if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") {
+                return new Promise(function (resolve) {
+                    setTimeout(function () {
+                        if (!auth.currentUser) {
+                            showAuthError(friendlyAuthError(error));
+                        }
+                        resolve();
+                    }, 1200);
+                });
+            }
+            if (code === "auth/popup-blocked" || code === "auth/operation-not-supported-in-this-environment") {
+                showAuthError("This browser blocked the Google window. Allow popups for this site, then tap Sign in with Google again.");
+                return;
+            }
             showAuthError(friendlyAuthError(error));
         }).finally(function () {
             googleButtons().forEach(function (button) {
@@ -432,6 +428,10 @@
         }).then(function () {
             return auth.getRedirectResult();
         }).catch(function (error) {
+            var message = (error && error.message) || "";
+            if (message.indexOf("missing initial state") !== -1) {
+                return;
+            }
             showAuthError(friendlyAuthError(error));
         });
 
