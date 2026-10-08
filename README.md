@@ -12,7 +12,7 @@ From this folder:
 python3 -m http.server 43123
 ```
 
-Open [http://127.0.0.1:43123](http://127.0.0.1:43123). The home page shows every app beside Sign in with Google. Sign-in goes through Firebase’s Google provider, which is allowed for this site. Signing out returns you to that sign-in screen.
+Open [http://127.0.0.1:43123](http://127.0.0.1:43123). The home page shows every app beside Sign in with Google. Phones and computers both open Google in a popup, because a full-page redirect cannot finish on a phone for this site. Allow popups if the browser blocks the window. Signing out returns you to that sign-in screen.
 
 ## Firebase setup
 
