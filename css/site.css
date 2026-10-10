@@ -542,73 +542,135 @@ th {
         box-shadow: 0 8px 20px rgba(60, 42, 24, 0.05) !important;
     }
 }
-```css
-.plant-scape {
+/* ===== BEIGE BOTANICAL BACKGROUND ===== */
+
+body {
+    background: #f5efe4;
+    position: relative;
+    isolation: isolate;
+}
+
+/* Container for decorative leaves */
+.plant-background {
     position: fixed;
     inset: 0;
     overflow: hidden;
     pointer-events: none;
-    z-index: 0;
+    z-index: -1;
 }
 
-.plant {
+/* Individual leaves */
+.bg-leaf {
     position: absolute;
-    width: 110px;
-    height: 160px;
-    object-fit: cover;
-    opacity: 0.85;
-
-    /* Give each image a leaf-like outline */
-    clip-path: polygon(
-        50% 0%, 65% 12%, 82% 30%,
-        95% 48%, 78% 70%, 52% 92%,
-        50% 100%, 45% 90%, 22% 70%,
-        5% 48%, 18% 25%, 36% 10%
-    );
+    width: 180px;
+    height: auto;
+    object-fit: contain;
+    opacity: 0.65;
+    filter: saturate(0.75);
 }
 
-.leaf-a {
-    top: 3%;
-    left: -15px;
-    transform: rotate(-30deg);
+/* Top left */
+.leaf-1 {
+    top: -35px;
+    left: -45px;
+    width: 190px;
+    transform: rotate(-20deg);
 }
 
-.leaf-b {
+/* Top right */
+.leaf-2 {
     top: 12%;
-    right: -15px;
-    transform: rotate(35deg);
-}
-
-.leaf-c {
-    top: 38%;
-    left: -25px;
+    right: -65px;
+    width: 170px;
     transform: rotate(25deg);
 }
 
-.leaf-d {
-    top: 55%;
-    right: -20px;
+/* Middle left */
+.leaf-3 {
+    top: 35%;
+    left: -75px;
+    width: 180px;
+    transform: rotate(15deg);
+}
+
+/* Middle right */
+.leaf-4 {
+    top: 48%;
+    right: -75px;
+    width: 185px;
     transform: rotate(-25deg);
 }
 
-.leaf-e {
+/* Bottom left */
+.leaf-5 {
     bottom: 8%;
+    left: -45px;
+    width: 200px;
+    transform: rotate(15deg);
+}
+
+/* Bottom right */
+.leaf-6 {
+    bottom: -25px;
+    right: -45px;
+    width: 190px;
+    transform: rotate(-15deg);
+}
+
+/* Extra scattered leaves */
+.leaf-7 {
+    top: 72%;
     left: 12%;
-    transform: rotate(-40deg);
+    width: 120px;
+    transform: rotate(-35deg);
 }
 
-.leaf-f {
-    bottom: 3%;
-    right: 12%;
-    transform: rotate(30deg);
+.leaf-8 {
+    top: 5%;
+    left: 45%;
+    width: 110px;
+    transform: rotate(35deg);
 }
 
-/* Keep your website content above the leaves */
-body {
-    background-color: #f5efe4;
-}
+/* Mobile adjustments */
+@media (max-width: 600px) {
+    .bg-leaf {
+        width: 115px;
+        opacity: 0.55;
+    }
 
-body > *:not(.plant-scape) {
-    position: relative;
-    z-index: 1;
+    .leaf-1 {
+        left: -40px;
+        top: -15px;
+    }
+
+    .leaf-2 {
+        right: -45px;
+        top: 18%;
+    }
+
+    .leaf-3 {
+        left: -50px;
+        top: 42%;
+    }
+
+    .leaf-4 {
+        right: -50px;
+        top: 60%;
+    }
+
+    .leaf-5 {
+        bottom: 12%;
+        left: -35px;
+    }
+
+    .leaf-6 {
+        bottom: -10px;
+        right: -35px;
+    }
+
+    .leaf-7,
+    .leaf-8 {
+        display: none;
+    }
 }
