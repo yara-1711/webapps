@@ -542,3 +542,42 @@ th {
         box-shadow: 0 8px 20px rgba(60, 42, 24, 0.05) !important;
     }
 }
+.plant-scape {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.plant {
+    position: absolute;
+    width: 280px;
+    height: 350px;
+    object-fit: cover;
+    opacity: 0.35;
+    border-radius: 45%;
+    -webkit-mask-image: radial-gradient(
+        ellipse, black 35%, transparent 75%
+    );
+    mask-image: radial-gradient(
+        ellipse, black 35%, transparent 75%
+    );
+}
+
+.leaf-a {
+    top: 0;
+    left: -90px;
+    transform: rotate(-15deg);
+}
+
+.leaf-b {
+    right: -100px;
+    bottom: 0;
+    transform: rotate(15deg);
+}
+
+/* Beige website background */
+body {
+    background-color: #f5efe4;
+}
