@@ -542,6 +542,7 @@ th {
         box-shadow: 0 8px 20px rgba(60, 42, 24, 0.05) !important;
     }
 }
+```css
 .plant-scape {
     position: fixed;
     inset: 0;
@@ -552,51 +553,62 @@ th {
 
 .plant {
     position: absolute;
-    width: 100px;
-    height: 130px;
+    width: 110px;
+    height: 160px;
     object-fit: cover;
-    opacity: 0.75;
-    border-radius: 50%;
-    clip-path: ellipse(45% 48% at 50% 50%);
+    opacity: 0.85;
+
+    /* Give each image a leaf-like outline */
+    clip-path: polygon(
+        50% 0%, 65% 12%, 82% 30%,
+        95% 48%, 78% 70%, 52% 92%,
+        50% 100%, 45% 90%, 22% 70%,
+        5% 48%, 18% 25%, 36% 10%
+    );
 }
 
 .leaf-a {
-    top: 5%;
-    left: 3%;
+    top: 3%;
+    left: -15px;
     transform: rotate(-30deg);
 }
 
 .leaf-b {
-    top: 18%;
-    right: 5%;
-    transform: rotate(25deg);
+    top: 12%;
+    right: -15px;
+    transform: rotate(35deg);
 }
 
 .leaf-c {
-    top: 45%;
+    top: 38%;
     left: -25px;
-    transform: rotate(40deg);
+    transform: rotate(25deg);
 }
 
 .leaf-d {
-    top: 60%;
-    right: 2%;
-    transform: rotate(-35deg);
+    top: 55%;
+    right: -20px;
+    transform: rotate(-25deg);
 }
 
 .leaf-e {
-    bottom: 3%;
-    left: 25%;
-    transform: rotate(15deg);
+    bottom: 8%;
+    left: 12%;
+    transform: rotate(-40deg);
 }
 
 .leaf-f {
-    top: 35%;
-    right: 25%;
-    transform: rotate(55deg);
+    bottom: 3%;
+    right: 12%;
+    transform: rotate(30deg);
 }
 
-/* Keep your website content above the decoration */
+/* Keep your website content above the leaves */
 body {
     background-color: #f5efe4;
+}
+
+body > *:not(.plant-scape) {
+    position: relative;
+    z-index: 1;
 }
