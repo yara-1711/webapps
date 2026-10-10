@@ -542,29 +542,29 @@ th {
         box-shadow: 0 8px 20px rgba(60, 42, 24, 0.05) !important;
     }
 }
-/* Beige background with decorative leaves */
+/* Beige botanical website background */
 body {
     background-color: #f5efe4;
 
     background-image:
-        url("https://images.stockcake.com/public/7/c/2/7c2b8f0f-9816-4aee-b414-33dd1242ba17_large/lush-green-leaves-stockcake.jpg"),
-        url("https://plus.unsplash.com/premium_photo-1682050733502-f58b7f499490?fm=jpg&q=60&w=3000&auto=format&fit=crop");
+        url("https://thumbs.dreamstime.com/b/peaceful-palm-leaf-border-transparent-background-natural-aesthetic-design-discover-serene-perfect-nature-themed-373104760.jpg");
 
-    background-repeat: no-repeat, no-repeat;
-    background-position: left top, right bottom;
-    background-size: 180px auto, 180px auto;
-    background-attachment: fixed, fixed;
+    background-repeat: repeat;
+    background-position: center top;
+    background-size: 350px auto;
+    background-attachment: fixed;
 }
 
-/* Keep the background from covering the content */
-body {
-    position: static;
+/* Remove old decorative images */
+.plant-scape,
+.plant-background {
+    display: none !important;
 }
 
 /* Mobile adjustments */
 @media (max-width: 600px) {
     body {
-        background-size: 110px auto, 110px auto;
-        background-attachment: scroll, scroll;
+        background-size: 220px auto;
+        background-attachment: scroll;
     }
 }
