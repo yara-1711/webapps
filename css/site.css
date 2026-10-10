@@ -547,37 +547,56 @@ th {
     inset: 0;
     overflow: hidden;
     pointer-events: none;
-    z-index: -1;
+    z-index: 0;
 }
 
 .plant {
     position: absolute;
-    width: 280px;
-    height: 350px;
+    width: 100px;
+    height: 130px;
     object-fit: cover;
-    opacity: 0.35;
-    border-radius: 45%;
-    -webkit-mask-image: radial-gradient(
-        ellipse, black 35%, transparent 75%
-    );
-    mask-image: radial-gradient(
-        ellipse, black 35%, transparent 75%
-    );
+    opacity: 0.75;
+    border-radius: 50%;
+    clip-path: ellipse(45% 48% at 50% 50%);
 }
 
 .leaf-a {
-    top: 0;
-    left: -90px;
-    transform: rotate(-15deg);
+    top: 5%;
+    left: 3%;
+    transform: rotate(-30deg);
 }
 
 .leaf-b {
-    right: -100px;
-    bottom: 0;
+    top: 18%;
+    right: 5%;
+    transform: rotate(25deg);
+}
+
+.leaf-c {
+    top: 45%;
+    left: -25px;
+    transform: rotate(40deg);
+}
+
+.leaf-d {
+    top: 60%;
+    right: 2%;
+    transform: rotate(-35deg);
+}
+
+.leaf-e {
+    bottom: 3%;
+    left: 25%;
     transform: rotate(15deg);
 }
 
-/* Beige website background */
+.leaf-f {
+    top: 35%;
+    right: 25%;
+    transform: rotate(55deg);
+}
+
+/* Keep your website content above the decoration */
 body {
     background-color: #f5efe4;
 }
