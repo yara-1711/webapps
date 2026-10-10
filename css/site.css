@@ -542,15 +542,13 @@ th {
         box-shadow: 0 8px 20px rgba(60, 42, 24, 0.05) !important;
     }
 }
-/* ===== BEIGE BOTANICAL BACKGROUND ===== */
-
+/* Beige website background */
 body {
-    background: #f5efe4;
+    background-color: #f5efe4;
     position: relative;
-    isolation: isolate;
 }
 
-/* Container for decorative leaves */
+/* Leaves stay behind all website content */
 .plant-background {
     position: fixed;
     inset: 0;
@@ -559,114 +557,75 @@ body {
     z-index: -1;
 }
 
-/* Individual leaves */
+/* Individual decorative leaves */
 .bg-leaf {
     position: absolute;
-    width: 180px;
     height: auto;
     object-fit: contain;
-    opacity: 0.65;
-    filter: saturate(0.75);
+    opacity: 0.55;
+    filter: saturate(0.7);
+    pointer-events: none;
 }
 
-/* Top left */
+/* Leaf positions */
 .leaf-1 {
-    top: -35px;
+    top: -25px;
     left: -45px;
     width: 190px;
     transform: rotate(-20deg);
 }
 
-/* Top right */
 .leaf-2 {
     top: 12%;
-    right: -65px;
+    right: -55px;
     width: 170px;
     transform: rotate(25deg);
 }
 
-/* Middle left */
 .leaf-3 {
     top: 35%;
-    left: -75px;
+    left: -65px;
     width: 180px;
     transform: rotate(15deg);
 }
 
-/* Middle right */
 .leaf-4 {
     top: 48%;
-    right: -75px;
+    right: -65px;
     width: 185px;
     transform: rotate(-25deg);
 }
 
-/* Bottom left */
 .leaf-5 {
     bottom: 8%;
-    left: -45px;
+    left: -40px;
     width: 200px;
     transform: rotate(15deg);
 }
 
-/* Bottom right */
 .leaf-6 {
-    bottom: -25px;
-    right: -45px;
+    bottom: -20px;
+    right: -40px;
     width: 190px;
     transform: rotate(-15deg);
 }
 
-/* Extra scattered leaves */
 .leaf-7 {
     top: 72%;
     left: 12%;
     width: 120px;
-    transform: rotate(-35deg);
 }
 
 .leaf-8 {
     top: 5%;
     left: 45%;
     width: 110px;
-    transform: rotate(35deg);
 }
 
-/* Mobile adjustments */
+/* Mobile */
 @media (max-width: 600px) {
     .bg-leaf {
         width: 115px;
-        opacity: 0.55;
-    }
-
-    .leaf-1 {
-        left: -40px;
-        top: -15px;
-    }
-
-    .leaf-2 {
-        right: -45px;
-        top: 18%;
-    }
-
-    .leaf-3 {
-        left: -50px;
-        top: 42%;
-    }
-
-    .leaf-4 {
-        right: -50px;
-        top: 60%;
-    }
-
-    .leaf-5 {
-        bottom: 12%;
-        left: -35px;
-    }
-
-    .leaf-6 {
-        bottom: -10px;
-        right: -35px;
     }
 
     .leaf-7,
